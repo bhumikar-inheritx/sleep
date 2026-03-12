@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../config/colors.dart';
 import '../../config/routes.dart';
-import '../../widgets/common/glass_card.dart';
-import '../../widgets/common/sleep_app_bar.dart';
 import '../../providers/content_provider.dart';
 import '../../screens/player/story_player_screen.dart';
-import 'package:provider/provider.dart';
+import '../../widgets/common/glass_card.dart';
+import '../../widgets/common/sleep_app_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,6 +14,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       appBar: const SleepAppBar(
         transparent: true,
@@ -24,29 +25,24 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.only(
-              bottom: 100,
-            ), // Space for bottom nav/player
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildGreeting(context),
-                const SizedBox(height: 24),
-                _buildTonightRecommendation(context),
-                const SizedBox(height: 32),
-                _buildQuickActions(context),
-                const SizedBox(height: 32),
-                _buildRecentSection(context),
-              ],
-            ),
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(
+            bottom: 100,
+          ), // Space for bottom nav/player
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildGreeting(context),
+              const SizedBox(height: 24),
+              _buildTonightRecommendation(context),
+              const SizedBox(height: 32),
+              _buildQuickActions(context),
+              const SizedBox(height: 32),
+              _buildRecentSection(context),
+            ],
           ),
         ),
       ),
@@ -68,7 +64,9 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Ready to wind down?',
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: SleepColors.textSecondary),
           ),
         ],
       ),
@@ -79,7 +77,7 @@ class HomeScreen extends StatelessWidget {
     return Consumer<ContentProvider>(
       builder: (context, content, child) {
         if (content.stories.isEmpty) return const SizedBox.shrink();
-        
+
         final story = content.stories.first;
 
         return Padding(
@@ -234,9 +232,10 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       action['title'] as String,
                       style: const TextStyle(
-                        color: SleepColors.textSecondary,
+                        color: SleepColors
+                            .textPrimary, // Changed from Secondary to Primary for visibility
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -320,7 +319,9 @@ class HomeScreen extends StatelessWidget {
                             Text(
                               'Soundscape',
                               style: TextStyle(
-                                color: SleepColors.textSecondary,
+                                color: SleepColors.textPrimary.withValues(
+                                  alpha: 0.7,
+                                ), // Increased visibility
                                 fontSize: 11,
                               ),
                             ),

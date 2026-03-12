@@ -5,18 +5,17 @@ import '../../models/soundscape.dart';
 import '../../providers/content_provider.dart';
 import '../../providers/sound_mixer_provider.dart';
 import '../../widgets/common/glass_card.dart';
+import '../../widgets/common/app_background.dart';
 
 class MixerScreen extends StatelessWidget {
   const MixerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
-        ),
-        child: SafeArea(
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
           child: Column(
             children: [
               // Header

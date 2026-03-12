@@ -20,6 +20,8 @@ class MusicPlayerScreen extends StatefulWidget {
 
 class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   bool _showControls = true;
+  bool _isDragging = false;
+  double _dragValue = 0.0;
 
   @override
   void initState() {
@@ -82,21 +84,24 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     const Spacer(),
                     
                     // Album Art
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      height: MediaQuery.of(context).size.width * 0.7,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            blurRadius: 30,
-                            offset: const Offset(0, 15),
+                    Hero(
+                      tag: 'music_art_${widget.track.id}',
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        height: MediaQuery.of(context).size.width * 0.7,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                            ),
+                          ],
+                          image: DecorationImage(
+                            image: AssetImage(widget.track.imageUrl),
+                            fit: BoxFit.cover,
                           ),
-                        ],
-                        image: DecorationImage(
-                          image: AssetImage(widget.track.imageUrl),
-                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -196,13 +201,29 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
                   ),
                   child: Slider(
-                    value: audioProvider.position.inSeconds.toDouble().clamp(
-                      0.0,
-                      audioProvider.duration.inSeconds.toDouble().clamp(1.0, double.infinity),
-                    ),
+                    value: _isDragging 
+                        ? _dragValue 
+                        : audioProvider.position.inSeconds.toDouble().clamp(
+                            0.0,
+                            audioProvider.duration.inSeconds.toDouble().clamp(1.0, double.infinity),
+                          ),
                     max: audioProvider.duration.inSeconds.toDouble().clamp(1.0, double.infinity),
+                    onChangeStart: (val) {
+                      setState(() {
+                        _isDragging = true;
+                        _dragValue = val;
+                      });
+                    },
                     onChanged: (val) {
+                      setState(() {
+                        _dragValue = val;
+                      });
+                    },
+                    onChangeEnd: (val) {
                       audioProvider.seek(Duration(seconds: val.toInt()));
+                      setState(() {
+                        _isDragging = false;
+                      });
                     },
                   ),
                 ),

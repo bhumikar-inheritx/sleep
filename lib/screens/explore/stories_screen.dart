@@ -7,6 +7,7 @@ import '../../providers/content_provider.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import '../player/story_player_screen.dart';
+import '../../widgets/common/app_background.dart';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({super.key});
@@ -20,17 +21,15 @@ class _StoriesScreenState extends State<StoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: const SleepAppBar(
-        title: 'Sleep Stories',
-        transparent: true,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: const SleepAppBar(
+          title: 'Sleep Stories',
+          transparent: true,
         ),
-        child: SafeArea(
+        body: SafeArea(
           child: Consumer<ContentProvider>(
             builder: (context, contentProvider, child) {
               if (contentProvider.isLoading) {
@@ -150,14 +149,17 @@ class _StoryCard extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // Cover Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
-            child: Image.asset(
-              story.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: SleepColors.surfaceLight,
-                child: const Icon(Icons.auto_stories, color: SleepColors.primaryLight, size: 40),
+          Hero(
+            tag: 'story_art_${story.id}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+              child: Image.asset(
+                story.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: SleepColors.surfaceLight,
+                  child: const Icon(Icons.auto_stories, color: SleepColors.primaryLight, size: 40),
+                ),
               ),
             ),
           ),

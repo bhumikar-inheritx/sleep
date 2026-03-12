@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../config/colors.dart';
+import '../../widgets/common/app_background.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 
 class BreathingExerciseScreen extends StatefulWidget {
@@ -96,14 +97,12 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: const SleepAppBar(title: '4-7-8 Breathing', transparent: true),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
-        ),
-        child: SafeArea(
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: const SleepAppBar(title: '4-7-8 Breathing', transparent: true),
+        body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -114,7 +113,8 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     // Responsive size: 80% of width or max 300
-                    final size = (MediaQuery.of(context).size.width * 0.8).clamp(200.0, 300.0);
+                    final size = (MediaQuery.of(context).size.width * 0.8)
+                        .clamp(200.0, 300.0);
                     return SizedBox(
                       width: size,
                       height: size,
@@ -132,16 +132,17 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
                                   height: size * 0.85,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: SleepColors.primary.withValues(
-                                      alpha: _opacityAnimation.value,
-                                    ),
+                                    gradient: SleepColors.vibrantGradient,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: SleepColors.primaryLight.withValues(
-                                          alpha: _opacityAnimation.value * 0.5,
-                                        ),
+                                        color: SleepColors.primaryLight
+                                            .withValues(
+                                              alpha:
+                                                  _opacityAnimation.value * 0.5,
+                                            ),
                                         blurRadius: 40 * _scaleAnimation.value,
-                                        spreadRadius: 20 * _scaleAnimation.value,
+                                        spreadRadius:
+                                            20 * _scaleAnimation.value,
                                       ),
                                     ],
                                   ),
@@ -181,8 +182,11 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
                   'Breathe in for 4s, hold for 7s, exhale for 8s. This technique helps calm the nervous system before sleep.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: SleepColors.textSecondary,
+                    color: SleepColors
+                        .textSecondary, // Now lightened globally in SleepColors
                     height: 1.5,
+                    fontWeight:
+                        FontWeight.w500, // Added slight weight for clarity
                   ),
                 ),
               ),

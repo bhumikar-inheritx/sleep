@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/colors.dart';
+import '../../config/routes.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/alarm/circular_clock_picker.dart';
+import '../../widgets/common/app_background.dart';
 import '../../widgets/common/gradient_button.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -13,75 +15,82 @@ class OnboardingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => OnboardingProvider(),
-      child: Scaffold(
-        body: Consumer<OnboardingProvider>(
-          builder: (context, provider, child) {
-            final isVibrant = provider.currentPage == 0;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              decoration: BoxDecoration(
-                gradient: isVibrant
-                    ? SleepColors.nightGradient
-                    : SleepColors.backgroundGradient,
-              ),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    // Progress Indicator (Skip on first and last page)
-                    if (provider.currentPage > 0 && provider.currentPage < 5)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24.0,
-                          vertical: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back,
-                                color: Colors.white,
-                              ),
-                              onPressed: () => provider.previousPage(),
-                            ),
-                            Expanded(
-                              child: LinearProgressIndicator(
-                                value: provider.currentPage / 5,
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.1,
+      child: AppBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Consumer<OnboardingProvider>(
+            builder: (context, provider, child) {
+              final isVibrant = provider.currentPage == 0;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                color: isVibrant
+                    ? Colors.black.withValues(
+                        alpha: 0.3,
+                      ) // Overlay for vibrancy
+                    : Colors.transparent,
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      // Progress Indicator (Skip on first and last page)
+                      if (provider.currentPage > 0 && provider.currentPage < 5)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0,
+                            vertical: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
                                 ),
-                                color: SleepColors.primaryLight,
-                                minHeight: 4,
-                                borderRadius: BorderRadius.circular(2),
+                                onPressed: () => provider.previousPage(),
                               ),
-                            ),
-                            const SizedBox(width: 48), // Balance for back button
+                              Expanded(
+                                child: LinearProgressIndicator(
+                                  value: provider.currentPage / 5,
+                                  backgroundColor: Colors.white.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  color: SleepColors.primaryLight,
+                                  minHeight: 4,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 48,
+                              ), // Balance for back button
+                            ],
+                          ),
+                        )
+                      else
+                        const SizedBox(
+                          height: 16,
+                        ), // Minimal spacing when progress not shown
+
+                      Expanded(
+                        child: PageView(
+                          controller: provider.pageController,
+                          physics:
+                              const NeverScrollableScrollPhysics(), // Only buttons advance
+                          onPageChanged: provider.setPage,
+                          children: [
+                            _buildWelcomePage(context, provider),
+                            _buildGoalsPage(context, provider),
+                            _buildChallengesPage(context, provider),
+                            _buildContentPage(context, provider),
+                            _buildBedtimePage(context, provider),
+                            _buildCompletePage(context, provider),
                           ],
                         ),
-                      )
-                    else
-                      const SizedBox(height: 16), // Minimal spacing when progress not shown
-
-                    Expanded(
-                      child: PageView(
-                        controller: provider.pageController,
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Only buttons advance
-                        onPageChanged: provider.setPage,
-                        children: [
-                          _buildWelcomePage(context, provider),
-                          _buildGoalsPage(context, provider),
-                          _buildChallengesPage(context, provider),
-                          _buildContentPage(context, provider),
-                          _buildBedtimePage(context, provider),
-                          _buildCompletePage(context, provider),
-                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -93,7 +102,8 @@ class OnboardingScreen extends StatelessWidget {
       padding: const EdgeInsets.all(24.0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height -
+          minHeight:
+              MediaQuery.of(context).size.height -
               MediaQuery.of(context).padding.top -
               MediaQuery.of(context).padding.bottom -
               56, // Account for Progress + SafeArea
@@ -410,9 +420,11 @@ class OnboardingScreen extends StatelessWidget {
           const Spacer(),
           GradientButton(
             text: 'Start Exploring',
-            onPressed: () {
-              provider.completeOnboarding();
-              Navigator.pushReplacementNamed(context, '/main');
+            onPressed: () async {
+              await provider.completeOnboarding();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, AppRoutes.signup);
+              }
             },
           ),
         ],

@@ -5,15 +5,17 @@ class SleepColors {
   SleepColors._();
 
   // ─── Core Backgrounds ─────────────────────────────
-  static const Color background = Color(0xFF0A0E27);
-  static const Color surface = Color(0xFF141836);
-  static const Color surfaceLight = Color(0xFF1E2350);
-  static const Color surfaceGlass = Color(0x331E2350);
+  static const Color background = Color(0xFF0F0B1E); // Midnight Violet
+  static const Color surface = Color(0xFF1B1431); // Deep Violet
+  static const Color surfaceLight = Color(0xFF281E46); // Medium Violet
+  static const Color surfaceGlass = Color(
+    0x66281E46,
+  ); // Increased opacity for legibility
 
   // ─── Primary Palette ──────────────────────────────
-  static const Color primary = Color(0xFF9D50BB); // Vibrant Purple
-  static const Color primaryLight = Color(0xFFBE93C5); // Soft Purple
-  static const Color primaryDark = Color(0xFF6E48AA); // Deep Purple
+  static const Color primary = Color(0xFFB358D7); // Vibrant Violet-Pink
+  static const Color primaryLight = Color(0xFFD69AD9); // Soft Lavender
+  static const Color primaryDark = Color(0xFF7E30B7); // Solid Purple
   static const Color accent = Color(
     0xFFFF8A65,
   ); // Coral/Orange accent from reference
@@ -30,15 +32,17 @@ class SleepColors {
   static const Color error = Color(0xFFEF4444);
 
   // ─── Text ─────────────────────────────────────────
-  static const Color textPrimary = Color(0xFFEEEEFF);
-  static const Color textSecondary = Color(0xFF8B8FAD);
-  static const Color textMuted = Color(0xFF5A5E7A);
+  static const Color textPrimary = Color(0xFFF5F5FF); // Brightened
+  static const Color textSecondary = Color(
+    0xFFF5F5FF,
+  ); // Lightened for contrast
+  static const Color textMuted = Color(0xFFF5F5FF); // Lightened for contrast
 
   // ─── Gradients ────────────────────────────────────
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF1A1B4B), Color(0xFF0A0E27)],
+    colors: [Color(0xFF281E46), Color(0xFF0F0B1E)],
   );
 
   static const LinearGradient vibrantGradient = LinearGradient(
@@ -53,19 +57,19 @@ class SleepColors {
   static const LinearGradient cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF1E2350), Color(0xFF141836)],
+    colors: [Color(0xFF281E46), Color(0xFF1B1431)],
   );
 
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF9D50BB), Color(0xFF6E48AA)],
+    colors: [Color(0xFFB358D7), Color(0xFF7E30B7)],
   );
 
   static const LinearGradient nightGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF1a1a4e), Color(0xFF0F1338), Color(0xFF0A0E27)],
+    colors: [Color(0xFF281E46), Color(0xFF1B1431), Color(0xFF0F0B1E)],
   );
 
   static const LinearGradient goldGradient = LinearGradient(

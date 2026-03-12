@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/storage_service.dart';
 
 class OnboardingProvider extends ChangeNotifier {
   final PageController pageController = PageController();
@@ -67,8 +68,7 @@ class OnboardingProvider extends ChangeNotifier {
 
   // Assuming you would save these to SharedPreferences/Firestore
   Future<void> completeOnboarding() async {
-    // Save logic here in real app
-    // StorageService.setBool('has_completed_onboarding', true);
+    await StorageService.setBool('has_completed_onboarding', true);
   }
 
   @override

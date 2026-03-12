@@ -19,41 +19,37 @@ class ExploreScreen extends StatelessWidget {
     return Consumer<ContentProvider>(
       builder: (context, content, child) {
         return Scaffold(
+          backgroundColor: Colors.transparent,
           extendBodyBehindAppBar: true,
           appBar: const SleepAppBar(title: 'Explore', transparent: true),
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: SleepColors.backgroundGradient,
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSearch(context),
-                    const SizedBox(height: 24),
-                    _buildCategories(context),
-                    const SizedBox(height: 32),
-                    _buildFeaturedHorizontal(
-                      context,
-                      'Featured Stories',
-                      content.stories.take(3).toList(),
-                      AppRoutes.stories,
-                    ),
-                    const SizedBox(height: 32),
-                    _buildFeaturedHorizontal(
-                      context,
-                      'Calming Music',
-                      content.music.take(3).toList(),
-                      AppRoutes.music,
-                    ),
-                    const SizedBox(height: 32),
-                    _buildGridCategories(context),
-                  ],
-                ),
+          body: SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSearch(context),
+                  const SizedBox(height: 24),
+                  _buildCategories(context),
+                  const SizedBox(height: 32),
+                  _buildFeaturedHorizontal(
+                    context,
+                    'Featured Stories',
+                    content.stories.take(3).toList(),
+                    AppRoutes.stories,
+                  ),
+                  const SizedBox(height: 32),
+                  _buildFeaturedHorizontal(
+                    context,
+                    'Calming Music',
+                    content.music.take(3).toList(),
+                    AppRoutes.music,
+                  ),
+                  const SizedBox(height: 32),
+                  _buildGridCategories(context),
+                ],
               ),
             ),
           ),
@@ -69,14 +65,14 @@ class ExploreScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Row(
           children: [
-            const Icon(Icons.search, color: SleepColors.textMuted),
+            const Icon(Icons.search, color: SleepColors.textSecondary), // Brightened from textMuted
             const SizedBox(width: 12),
             Expanded(
               child: TextField(
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   hintText: 'Search stories, sounds, music...',
-                  hintStyle: TextStyle(color: SleepColors.textMuted),
+                  hintStyle: TextStyle(color: SleepColors.textSecondary), // Brightened from textMuted
                   border: InputBorder.none,
                 ),
                 onSubmitted: (_) {
@@ -131,6 +127,7 @@ class ExploreScreen extends StatelessWidget {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+
                 children: [
                   Icon(
                     cat['icon'] as IconData,
@@ -402,7 +399,7 @@ class _ContentCard extends StatelessWidget {
                           child: Text(
                             subtitle,
                             style: const TextStyle(
-                              color: SleepColors.textMuted,
+                              color: SleepColors.textSecondary, // Brightened from textMuted
                               fontSize: 12,
                             ),
                             maxLines: 1,

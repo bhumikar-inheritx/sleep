@@ -7,6 +7,7 @@ import '../../providers/content_provider.dart';
 import '../../providers/sound_mixer_provider.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import '../player/mixer_screen.dart';
+import '../../widgets/common/app_background.dart';
 
 class SoundscapesScreen extends StatefulWidget {
   const SoundscapesScreen({super.key});
@@ -22,17 +23,15 @@ class _SoundscapesScreenState extends State<SoundscapesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: const SleepAppBar(
-        title: 'Soundscapes',
-        transparent: true,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: const SleepAppBar(
+          title: 'Soundscapes',
+          transparent: true,
         ),
-        child: SafeArea(
+        body: SafeArea(
           child: Column(
             children: [
               _buildCategorySelector(),
@@ -69,23 +68,29 @@ class _SoundscapesScreenState extends State<SoundscapesScreen> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: Consumer<SoundMixerProvider>(
-        builder: (context, mixer, child) {
-          if (!mixer.isPlaying) return const SizedBox.shrink();
-          
-          return FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MixerScreen()),
-              );
-            },
-            backgroundColor: SleepColors.primary,
-            icon: const Icon(Icons.tune, color: Colors.white),
-            label: const Text('Open Mixer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          );
-        },
+        floatingActionButton: Consumer<SoundMixerProvider>(
+          builder: (context, mixer, child) {
+            if (!mixer.isPlaying) return const SizedBox.shrink();
+
+            return FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MixerScreen()),
+                );
+              },
+              backgroundColor: SleepColors.primary,
+              icon: const Icon(Icons.tune, color: Colors.white),
+              label: const Text(
+                'Open Mixer',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

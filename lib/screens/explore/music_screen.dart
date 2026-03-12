@@ -7,6 +7,7 @@ import '../../providers/content_provider.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import '../player/music_player_screen.dart';
+import '../../widgets/common/app_background.dart';
 
 class MusicScreen extends StatefulWidget {
   const MusicScreen({super.key});
@@ -23,17 +24,15 @@ class _MusicScreenState extends State<MusicScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: const SleepAppBar(
-        title: 'Sleep Music',
-        transparent: true,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: const SleepAppBar(
+          title: 'Sleep Music',
+          transparent: true,
         ),
-        child: SafeArea(
+        body: SafeArea(
           child: Consumer<ContentProvider>(
             builder: (context, contentProvider, child) {
               if (contentProvider.isLoading) {
@@ -153,17 +152,20 @@ class _MusicCard extends StatelessWidget {
       child: Row(
         children: [
           // Album Art
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              width: 72,
-              height: 72,
-              child: Image.asset(
-                track.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: SleepColors.surfaceLight,
-                  child: const Icon(Icons.music_note, color: SleepColors.primaryLight),
+          Hero(
+            tag: 'music_art_${track.id}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 72,
+                height: 72,
+                child: Image.asset(
+                  track.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: SleepColors.surfaceLight,
+                    child: const Icon(Icons.music_note, color: SleepColors.primaryLight),
+                  ),
                 ),
               ),
             ),

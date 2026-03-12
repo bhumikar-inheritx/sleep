@@ -7,8 +7,14 @@ import 'providers/content_provider.dart';
 import 'providers/sound_mixer_provider.dart';
 import 'providers/sleep_tracker_provider.dart';
 import 'providers/alarm_provider.dart';
+import 'providers/auth_provider.dart';
+import 'providers/onboarding_provider.dart';
+import 'services/storage_service.dart';
 import 'config/theme.dart';
 import 'config/routes.dart';
+import 'providers/auth_provider.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/signup_screen.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
@@ -22,6 +28,9 @@ import 'screens/alarm/alarm_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Storage
+  await StorageService.init();
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -48,6 +57,8 @@ class DreamDriftApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => OnboardingProvider()),
         ChangeNotifierProvider(create: (_) => AudioPlayerProvider()),
         ChangeNotifierProvider(create: (_) => ContentProvider()),
         ChangeNotifierProvider(create: (_) => SoundMixerProvider()),
@@ -62,6 +73,8 @@ class DreamDriftApp extends StatelessWidget {
       routes: {
         AppRoutes.splash: (context) => const SplashScreen(),
         AppRoutes.onboarding: (context) => const OnboardingScreen(),
+        AppRoutes.login: (context) => const LoginScreen(),
+        AppRoutes.signup: (context) => const SignupScreen(),
         AppRoutes.main: (context) => const MainScreen(),
         AppRoutes.explore: (context) => const ExploreScreen(),
         AppRoutes.stories: (context) => const StoriesScreen(),

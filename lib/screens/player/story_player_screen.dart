@@ -20,6 +20,8 @@ class StoryPlayerScreen extends StatefulWidget {
 
 class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
   bool _showControls = true;
+  bool _isDragging = false;
+  double _dragValue = 0.0;
 
   @override
   void initState() {
@@ -60,9 +62,12 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
           fit: StackFit.expand,
           children: [
             // Background Image
-            Image.asset(
-              widget.story.imageUrl,
-              fit: BoxFit.cover,
+            Hero(
+              tag: 'story_art_${widget.story.id}',
+              child: Image.asset(
+                widget.story.imageUrl,
+                fit: BoxFit.cover,
+              ),
             ),
             
             // Background Gradient overlay (darkens when controls are visible)
@@ -192,13 +197,29 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
                     overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
                   ),
                   child: Slider(
-                    value: audioProvider.position.inSeconds.toDouble().clamp(
-                      0.0,
-                      audioProvider.duration.inSeconds.toDouble().clamp(1.0, double.infinity),
-                    ),
+                    value: _isDragging 
+                        ? _dragValue 
+                        : audioProvider.position.inSeconds.toDouble().clamp(
+                            0.0,
+                            audioProvider.duration.inSeconds.toDouble().clamp(1.0, double.infinity),
+                          ),
                     max: audioProvider.duration.inSeconds.toDouble().clamp(1.0, double.infinity),
+                    onChangeStart: (val) {
+                      setState(() {
+                        _isDragging = true;
+                        _dragValue = val;
+                      });
+                    },
                     onChanged: (val) {
+                      setState(() {
+                        _dragValue = val;
+                      });
+                    },
+                    onChangeEnd: (val) {
                       audioProvider.seek(Duration(seconds: val.toInt()));
+                      setState(() {
+                        _isDragging = false;
+                      });
                     },
                   ),
                 ),

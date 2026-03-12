@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+
+import 'package:provider/provider.dart';
 import '../../config/colors.dart';
-import '../../widgets/common/sleep_app_bar.dart';
+import '../../config/routes.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/common/app_background.dart';
+import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/glass_card.dart';
+import '../../widgets/common/sleep_app_bar.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -9,117 +15,119 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
-      appBar: const SleepAppBar(
-        title: 'Profile',
-        transparent: true,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 100), // Space for nav bar
-            child: Column(
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: 32),
-                _buildSettingsGroup(
-                  context,
-                  title: 'Account',
-                  items: [
-                    _SettingsItem(
-                      icon: Icons.person_outline,
-                      title: 'Edit Profile',
-                      onTap: () {},
-                    ),
-                    _SettingsItem(
-                      icon: Icons.download_outlined,
-                      title: 'Export Sleep Data',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                _buildSettingsGroup(
-                  context,
-                  title: 'Preferences',
-                  items: [
-                    _SettingsItem(
-                      icon: Icons.alarm,
-                      title: 'Smart Alarm Settings',
-                      onTap: () {
-                        // In a real app, this might be a bottom sheet or 
-                        // full screen navigation back to Alarm tab or specific settings
-                        Navigator.pushNamed(context, '/alarm');
-                      },
-                    ),
-                    _SettingsItem(
-                      icon: Icons.notifications_outlined,
-                      title: 'Notifications',
-                      onTap: () {},
-                    ),
-                    _SettingsItem(
-                      icon: Icons.palette_outlined,
-                      title: 'App Theme',
-                      trailing: const Text(
-                        'Dark',
-                        style: TextStyle(color: SleepColors.textMuted),
-                      ),
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                _buildSettingsGroup(
-                  context,
-                  title: 'Audio Settings',
-                  items: [
-                    _SettingsItem(
-                      icon: Icons.timer_outlined,
-                      title: 'Default Sleep Timer',
-                      trailing: const Text(
-                        '30 min',
-                        style: TextStyle(color: SleepColors.textMuted),
-                      ),
-                      onTap: () {},
-                    ),
-                    _SettingsItem(
-                      icon: Icons.volume_down_outlined,
-                      title: 'Fade Out Duration',
-                      trailing: const Text(
-                        '5 min',
-                        style: TextStyle(color: SleepColors.textMuted),
-                      ),
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                TextButton(
-                  onPressed: () {
-                    // Start onboarding again for demo
-                    Navigator.pushNamed(context, '/onboarding');
-                  },
-                  child: const Text(
-                    'Retake Onboarding',
-                    style: TextStyle(color: SleepColors.primaryLight),
+      appBar: const SleepAppBar(title: 'Profile', transparent: true),
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 100), // Space for nav bar
+          child: Column(
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 32),
+              _buildSettingsGroup(
+                context,
+                title: 'Account',
+                items: [
+                  _SettingsItem(
+                    icon: Icons.person_outline,
+                    title: 'Edit Profile',
+                    onTap: () {},
                   ),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Sign Out',
-                    style: TextStyle(color: Colors.redAccent),
+                  _SettingsItem(
+                    icon: Icons.download_outlined,
+                    title: 'Export Sleep Data',
+                    onTap: () {},
                   ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _buildSettingsGroup(
+                context,
+                title: 'Preferences',
+                items: [
+                  _SettingsItem(
+                    icon: Icons.alarm,
+                    title: 'Smart Alarm Settings',
+                    onTap: () {
+                      // In a real app, this might be a bottom sheet or
+                      // full screen navigation back to Alarm tab or specific settings
+                      Navigator.pushNamed(context, '/alarm');
+                    },
+                  ),
+                  _SettingsItem(
+                    icon: Icons.notifications_outlined,
+                    title: 'Notifications',
+                    onTap: () {},
+                  ),
+                  _SettingsItem(
+                    icon: Icons.palette_outlined,
+                    title: 'App Theme',
+                    trailing: const Text(
+                      'Dark',
+                      style: TextStyle(color: SleepColors.textMuted),
+                    ),
+                    onTap: () {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _buildSettingsGroup(
+                context,
+                title: 'Audio Settings',
+                items: [
+                  _SettingsItem(
+                    icon: Icons.timer_outlined,
+                    title: 'Default Sleep Timer',
+                    trailing: const Text(
+                      '30 min',
+                      style: TextStyle(color: SleepColors.textMuted),
+                    ),
+                    onTap: () {},
+                  ),
+                  _SettingsItem(
+                    icon: Icons.volume_down_outlined,
+                    title: 'Fade Out Duration',
+                    trailing: const Text(
+                      '5 min',
+                      style: TextStyle(color: SleepColors.textMuted),
+                    ),
+                    onTap: () {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              TextButton(
+                onPressed: () {
+                  // Start onboarding again for demo
+                  Navigator.pushNamed(context, '/onboarding');
+                },
+                child: const Text(
+                  'Retake Onboarding',
+                  style: TextStyle(color: SleepColors.primaryLight),
                 ),
-                const SizedBox(height: 32),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () async {
+                  await Provider.of<AuthProvider>(context, listen: false).logout();
+                  if (context.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRoutes.login,
+                      (route) => false,
+                    );
+                  }
+                },
+                child: const Text(
+                  'Sign Out',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
           ),
         ),
       ),
@@ -127,59 +135,50 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: SleepColors.primary.withValues(alpha: 0.2),
-              border: Border.all(color: SleepColors.primaryLight, width: 2),
-            ),
-            child: const Center(
-              child: Text(
-                'S', // Initial
-                style: TextStyle(
-                  color: SleepColors.primaryLight,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+    return Consumer<AuthProvider>(
+      builder: (context, auth, _) {
+        final initials = auth.userName?.isNotEmpty == true ? auth.userName![0].toUpperCase() : 'S';
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+          child: Row(
+            children: [
+              const AppLogo(size: 72, showText: false, hero: false),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      auth.userName ?? 'Dreamer',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      auth.userEmail ?? 'user@example.com',
+                      style: const TextStyle(
+                        color: SleepColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Sleepy User',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'user@example.com',
-                  style: TextStyle(
-                    color: SleepColors.textSecondary,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildSettingsGroup(BuildContext context, {required String title, required List<_SettingsItem> items}) {
+  Widget _buildSettingsGroup(
+    BuildContext context, {
+    required String title,
+    required List<_SettingsItem> items,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
@@ -203,7 +202,11 @@ class ProfileScreen extends StatelessWidget {
                 return Column(
                   children: [
                     ListTile(
-                      leading: Icon(item.icon, color: SleepColors.primaryLight, size: 22),
+                      leading: Icon(
+                        item.icon,
+                        color: SleepColors.primaryLight,
+                        size: 22,
+                      ),
                       title: Text(
                         item.title,
                         style: const TextStyle(
@@ -219,11 +222,18 @@ class ProfileScreen extends StatelessWidget {
                             item.trailing!,
                             const SizedBox(width: 8),
                           ],
-                          const Icon(Icons.chevron_right, color: SleepColors.textMuted, size: 20),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: SleepColors.textMuted,
+                            size: 20,
+                          ),
                         ],
                       ),
                       onTap: item.onTap,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
                     ),
                     if (index < items.length - 1)
                       Divider(

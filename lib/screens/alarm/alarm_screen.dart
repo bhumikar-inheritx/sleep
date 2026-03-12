@@ -7,23 +7,22 @@ import '../../providers/alarm_provider.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/alarm/circular_clock_picker.dart';
+import '../../widgets/common/app_background.dart';
 
 class AlarmScreen extends StatelessWidget {
   const AlarmScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: const SleepAppBar(
-        title: 'Sleep schedule',
-        transparent: true,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: const SleepAppBar(
+          title: 'Sleep schedule',
+          transparent: true,
         ),
-        child: SafeArea(
+        body: SafeArea(
           bottom: false,
           child: Consumer<AlarmProvider>(
             builder: (context, alarmProvider, child) {

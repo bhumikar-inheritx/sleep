@@ -1,7 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../config/colors.dart';
 import '../../config/routes.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/storage_service.dart';
+import '../../widgets/common/app_background.dart';
+import '../../widgets/common/app_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -42,9 +49,25 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate to next screen after delay
     Timer(const Duration(seconds: 3), () {
-      // TODO: Check auth/onboarding status here later
-      Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
+      _navigateNext();
     });
+  }
+
+  void _navigateNext() {
+    if (!mounted) return;
+
+    final hasCompletedOnboarding = StorageService.getBool(
+      'has_completed_onboarding',
+    );
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    if (!hasCompletedOnboarding) {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
+    } else if (!authProvider.isAuthenticated) {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+    } else {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.main);
+    }
   }
 
   @override
@@ -55,67 +78,33 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
-        ),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return FadeTransition(
-              opacity: _fadeAnimation,
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: child,
-              ),
-            );
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Placeholder for the moon/dream logo
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: SleepColors.primaryGradient,
-                  boxShadow: [
-                    BoxShadow(
-                      color: SleepColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 30,
-                      spreadRadius: 10,
-                    ),
-                  ],
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: ScaleTransition(scale: _scaleAnimation, child: child),
+              );
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const AppLogo(size: 120),
+                const SizedBox(height: 24),
+                Text(
+                  'Fall asleep. Stay asleep. Wake refreshed.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: SleepColors.textSecondary,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.nights_stay,
-                  color: Colors.white,
-                  size: 60,
-                ),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'DreamDrift',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 2.0,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Fall asleep. Stay asleep. Wake refreshed.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: SleepColors.textSecondary,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -16,87 +16,83 @@ class InsightsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       appBar: const SleepAppBar(title: 'Sleep Journey', transparent: true),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: SleepColors.backgroundGradient,
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Consumer<SleepTrackerProvider>(
-            builder: (context, tracker, child) {
-              if (tracker.isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      body: SafeArea(
+        bottom: false,
+        child: Consumer<SleepTrackerProvider>(
+          builder: (context, tracker, child) {
+            if (tracker.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-              final logs = tracker.logs;
-              if (logs.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No sleep data yet.\nTrack your sleep tonight!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: SleepColors.textMuted),
-                  ),
-                );
-              }
-
-              final latestLog = logs.first;
-              final latestScore = latestLog.qualityRating / 5.0;
-
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    // Ring
-                    Center(child: SleepScoreRing(percentage: latestScore)),
-
-                    const SizedBox(height: 32),
-
-                    // Quick Recap
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text(
-                        'Quick recap',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildStatsGrid(context, tracker),
-
-                    const SizedBox(height: 32),
-
-                    // Weekly Chart
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text(
-                        'This Week',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildWeeklyChart(context, logs),
-
-                    const SizedBox(height: 32),
-
-                    // Sleep Logs
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text(
-                        'Sleep log',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSleepLogsList(context, logs),
-                  ],
+            final logs = tracker.logs;
+            if (logs.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No sleep data yet.\nTrack your sleep tonight!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: SleepColors.textMuted),
                 ),
               );
-            },
-          ),
+            }
+
+            final latestLog = logs.first;
+            final latestScore = latestLog.qualityRating / 5.0;
+
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  // Ring
+                  Center(child: SleepScoreRing(percentage: latestScore)),
+
+                  const SizedBox(height: 32),
+
+                  // Quick Recap
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Text(
+                      'Quick recap',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildStatsGrid(context, tracker),
+
+                  const SizedBox(height: 32),
+
+                  // Weekly Chart
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Text(
+                      'This Week',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildWeeklyChart(context, logs),
+
+                  const SizedBox(height: 32),
+
+                  // Sleep Logs
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Text(
+                      'Sleep log',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSleepLogsList(context, logs),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -229,7 +225,7 @@ class InsightsScreen extends StatelessWidget {
               backDrawRodData: BackgroundBarChartRodData(
                 show: true,
                 toY: 10, // Max scale
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Colors.white.withValues(alpha: 0.1), // Increased opacity
               ),
             ),
           ],
@@ -268,9 +264,9 @@ class InsightsScreen extends StatelessWidget {
                         child: Text(
                           dayStr,
                           style: const TextStyle(
-                            color: SleepColors.textMuted,
+                            color: SleepColors.textSecondary, // Lightened from textMuted
                             fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       );
@@ -293,7 +289,7 @@ class InsightsScreen extends StatelessWidget {
                 horizontalInterval: 2,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: Colors.white.withValues(alpha: 0.1), // Increased opacity for visibility
                     strokeWidth: 1,
                   );
                 },
