@@ -100,17 +100,6 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               TextButton(
-                onPressed: () {
-                  // Start onboarding again for demo
-                  Navigator.pushNamed(context, '/onboarding');
-                },
-                child: const Text(
-                  'Retake Onboarding',
-                  style: TextStyle(color: SleepColors.primaryLight),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
                 onPressed: () async {
                   await Provider.of<AuthProvider>(context, listen: false).logout();
                   if (context.mounted) {
