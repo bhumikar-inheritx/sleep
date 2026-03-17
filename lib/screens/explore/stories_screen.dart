@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/colors.dart';
 import '../../config/constants.dart';
+import '../../widgets/common/mini_player.dart';
+
 import '../../models/sleep_story.dart';
 import '../../providers/content_provider.dart';
 import '../../widgets/common/glass_card.dart';
@@ -30,24 +32,38 @@ class _StoriesScreenState extends State<StoriesScreen> {
           transparent: true,
         ),
         body: SafeArea(
-          child: Consumer<ContentProvider>(
-            builder: (context, contentProvider, child) {
-              if (contentProvider.isLoading) {
-                return const Center(child: CircularProgressIndicator(color: SleepColors.primary));
-              }
+          child: Stack(
+            children: [
+              Consumer<ContentProvider>(
+                builder: (context, contentProvider, child) {
+                  if (contentProvider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: SleepColors.primary),
+                    );
+                  }
 
-              final stories = contentProvider.getStoriesByCategory(_selectedCategory);
+                  final stories = contentProvider.getStoriesByCategory(_selectedCategory);
 
-              return Column(
-                children: [
-                  _buildCategorySelector(),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: _buildStoriesGrid(stories),
-                  ),
-                ],
-              );
-            },
+                  return Column(
+                    children: [
+                      _buildCategorySelector(),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: _buildStoriesGrid(stories),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              
+              // Floating Mini Player
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MiniPlayer(),
+              ),
+            ],
           ),
         ),
       ),
@@ -111,7 +127,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 16.0, bottom: 100.0),
       physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,

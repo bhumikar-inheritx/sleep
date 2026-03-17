@@ -16,15 +16,18 @@ class AppLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget logo = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildLogoIcon(),
-        if (showText) ...[
-          const SizedBox(height: 16),
-          _buildLogoText(context),
+    Widget logo = FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildLogoIcon(),
+          if (showText) ...[
+            const SizedBox(height: 16),
+            _buildLogoText(context),
+          ],
         ],
-      ],
+      ),
     );
 
     if (hero) {

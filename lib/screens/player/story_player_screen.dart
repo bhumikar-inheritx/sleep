@@ -8,10 +8,12 @@ import '../../widgets/common/glass_card.dart';
 
 class StoryPlayerScreen extends StatefulWidget {
   final SleepStory story;
+  final String? heroTag;
 
   const StoryPlayerScreen({
     super.key,
     required this.story,
+    this.heroTag,
   });
 
   @override
@@ -29,15 +31,19 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
     // Start playback when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final audioProvider = Provider.of<AudioPlayerProvider>(context, listen: false);
-      audioProvider.loadAndPlay(
-        url: widget.story.audioUrl,
-        id: widget.story.id,
-        title: widget.story.title,
-        type: AudioContentType.story,
-        artist: widget.story.narrator,
-        category: widget.story.category,
-        imageUrl: widget.story.imageUrl, // In a real app, pass a web URL for background audio art
-      );
+      
+      // Only load and play if it's a different story than what's currently loaded
+      if (audioProvider.currentId != widget.story.id) {
+        audioProvider.loadAndPlay(
+          url: widget.story.audioUrl,
+          id: widget.story.id,
+          title: widget.story.title,
+          type: AudioContentType.story,
+          artist: widget.story.narrator,
+          category: widget.story.category,
+          imageUrl: widget.story.imageUrl,
+        );
+      }
     });
   }
 
@@ -63,7 +69,7 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
           children: [
             // Background Image
             Hero(
-              tag: 'story_art_${widget.story.id}',
+              tag: widget.heroTag ?? 'story_art_${widget.story.id}',
               child: Image.asset(
                 widget.story.imageUrl,
                 fit: BoxFit.cover,

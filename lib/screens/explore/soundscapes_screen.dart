@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/colors.dart';
 import '../../config/constants.dart';
+import '../../widgets/common/mini_player.dart';
+
 import '../../models/soundscape.dart';
 import '../../providers/content_provider.dart';
 import '../../providers/sound_mixer_provider.dart';
@@ -32,38 +34,60 @@ class _SoundscapesScreenState extends State<SoundscapesScreen> {
           transparent: true,
         ),
         body: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              _buildCategorySelector(),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Consumer<ContentProvider>(
-                  builder: (context, contentProvider, child) {
-                    if (contentProvider.isLoading) {
-                      return const Center(child: CircularProgressIndicator(color: SleepColors.primary));
-                    }
+              Column(
+                children: [
+                  _buildCategorySelector(),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: Consumer<ContentProvider>(
+                      builder: (context, contentProvider, child) {
+                        if (contentProvider.isLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(color: SleepColors.primary),
+                          );
+                        }
 
-                    List<Soundscape> sounds = contentProvider.sounds;
-                    if (_selectedCategory != 'All') {
-                      sounds = sounds.where((s) => s.category == _selectedCategory).toList();
-                    }
+                        List<Soundscape> sounds = contentProvider.sounds;
+                        if (_selectedCategory != 'All') {
+                          sounds = sounds
+                              .where((s) => s.category == _selectedCategory)
+                              .toList();
+                        }
 
-                    return GridView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                      physics: const BouncingScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.8,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      itemCount: sounds.length,
-                      itemBuilder: (context, index) {
-                        return _SoundIcon(sound: sounds[index]);
+                        return GridView.builder(
+                          padding: const EdgeInsets.only(
+                            left: 24.0,
+                            right: 24.0,
+                            top: 16.0,
+                            bottom: 100.0,
+                          ),
+                          physics: const BouncingScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: 0.8,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                          itemCount: sounds.length,
+                          itemBuilder: (context, index) {
+                            return _SoundIcon(sound: sounds[index]);
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              // Floating Mini Player
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MiniPlayer(),
               ),
             ],
           ),

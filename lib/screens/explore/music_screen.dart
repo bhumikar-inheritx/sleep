@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/colors.dart';
 import '../../config/constants.dart';
+import '../../providers/audio_player_provider.dart';
+import '../../widgets/common/mini_player.dart';
+
 import '../../models/sleep_track.dart';
 import '../../providers/content_provider.dart';
 import '../../widgets/common/glass_card.dart';
@@ -33,28 +36,44 @@ class _MusicScreenState extends State<MusicScreen> {
           transparent: true,
         ),
         body: SafeArea(
-          child: Consumer<ContentProvider>(
-            builder: (context, contentProvider, child) {
-              if (contentProvider.isLoading) {
-                return const Center(child: CircularProgressIndicator(color: SleepColors.primary));
-              }
+          child: Stack(
+            children: [
+              Consumer<ContentProvider>(
+                builder: (context, contentProvider, child) {
+                  if (contentProvider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: SleepColors.primary),
+                    );
+                  }
 
-              // Filter music by category locally (mock behavior)
-              List<SleepTrack> tracks = contentProvider.music;
-              if (_selectedCategory != 'All') {
-                tracks = tracks.where((t) => t.category == _selectedCategory).toList();
-              }
+                  // Filter music by category locally (mock behavior)
+                  List<SleepTrack> tracks = contentProvider.music;
+                  if (_selectedCategory != 'All') {
+                    tracks = tracks
+                        .where((t) => t.category == _selectedCategory)
+                        .toList();
+                  }
 
-              return Column(
-                children: [
-                  _buildCategorySelector(),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: _buildMusicList(tracks),
-                  ),
-                ],
-              );
-            },
+                  return Column(
+                    children: [
+                      _buildCategorySelector(),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: _buildMusicList(tracks),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              
+              // Floating Mini Player
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MiniPlayer(),
+              ),
+            ],
           ),
         ),
       ),
@@ -120,7 +139,7 @@ class _MusicScreenState extends State<MusicScreen> {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 16.0, bottom: 100.0),
       physics: const BouncingScrollPhysics(),
       itemCount: tracks.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),

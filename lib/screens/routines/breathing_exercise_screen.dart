@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../config/colors.dart';
+import '../../widgets/common/mini_player.dart';
+
 import '../../widgets/common/app_background.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 
@@ -103,119 +105,131 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
         extendBodyBehindAppBar: true,
         appBar: const SleepAppBar(title: '4-7-8 Breathing', transparent: true),
         body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              const Spacer(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
 
-              // The Breathing Circle
-              Center(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    // Responsive size: 80% of width or max 300
-                    final size = (MediaQuery.of(context).size.width * 0.8)
-                        .clamp(200.0, 300.0);
-                    return SizedBox(
-                      width: size,
-                      height: size,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Inner animated glow
-                          AnimatedBuilder(
-                            animation: _controller,
-                            builder: (context, child) {
-                              return Transform.scale(
-                                scale: _scaleAnimation.value,
-                                child: Container(
-                                  width: size * 0.85,
-                                  height: size * 0.85,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: SleepColors.vibrantGradient,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: SleepColors.primaryLight
-                                            .withValues(
-                                              alpha:
-                                                  _opacityAnimation.value * 0.5,
-                                            ),
-                                        blurRadius: 40 * _scaleAnimation.value,
-                                        spreadRadius:
-                                            20 * _scaleAnimation.value,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-
-                          // Center Text
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
+                  // The Breathing Circle
+                  Center(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Responsive size: 80% of width or max 300
+                        final size = (MediaQuery.of(context).size.width * 0.8)
+                            .clamp(200.0, 300.0);
+                        return SizedBox(
+                          width: size,
+                          height: size,
+                          child: Stack(
+                            alignment: Alignment.center,
                             children: [
-                              Text(
-                                _currentPhase,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: size * 0.1, // Responsive font size
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.2,
-                                ),
+                              // Inner animated glow
+                              AnimatedBuilder(
+                                animation: _controller,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: _scaleAnimation.value,
+                                    child: Container(
+                                      width: size * 0.85,
+                                      height: size * 0.85,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: SleepColors.vibrantGradient,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: SleepColors.primaryLight
+                                                .withValues(
+                                                  alpha:
+                                                      _opacityAnimation.value * 0.5,
+                                                ),
+                                            blurRadius: 40 * _scaleAnimation.value,
+                                            spreadRadius:
+                                                20 * _scaleAnimation.value,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                              // Center Text
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _currentPhase,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: size * 0.1, // Responsive font size
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        );
+                      },
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  // Instructions
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                    child: Text(
+                      'Breathe in for 4s, hold for 7s, exhale for 8s. This technique helps calm the nervous system before sleep.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: SleepColors
+                            .textSecondary, // Now lightened globally in SleepColors
+                        height: 1.5,
+                        fontWeight:
+                            FontWeight.w500, // Added slight weight for clarity
                       ),
-                    );
-                  },
-                ),
-              ),
-
-              const Spacer(),
-
-              // Instructions
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                child: Text(
-                  'Breathe in for 4s, hold for 7s, exhale for 8s. This technique helps calm the nervous system before sleep.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: SleepColors
-                        .textSecondary, // Now lightened globally in SleepColors
-                    height: 1.5,
-                    fontWeight:
-                        FontWeight.w500, // Added slight weight for clarity
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 48),
-
-              // Start/Stop Button
-              GestureDetector(
-                onTap: _toggleExercise,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  margin: const EdgeInsets.only(bottom: 48),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 2,
-                    ),
-                    color: _isActive ? Colors.transparent : SleepColors.primary,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      _isActive ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                      color: Colors.white,
-                      size: 40,
                     ),
                   ),
-                ),
+
+                  const SizedBox(height: 48),
+
+                  // Start/Stop Button
+                  GestureDetector(
+                    onTap: _toggleExercise,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      margin: const EdgeInsets.only(bottom: 48),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          width: 2,
+                        ),
+                        color: _isActive ? Colors.transparent : SleepColors.primary,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _isActive ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              // Floating Mini Player
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MiniPlayer(),
               ),
             ],
           ),

@@ -8,10 +8,12 @@ import '../../widgets/common/glass_card.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
   final SleepTrack track;
+  final String? heroTag;
 
   const MusicPlayerScreen({
     super.key,
     required this.track,
+    this.heroTag,
   });
 
   @override
@@ -28,15 +30,19 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final audioProvider = Provider.of<AudioPlayerProvider>(context, listen: false);
-      audioProvider.loadAndPlay(
-        url: widget.track.audioUrl,
-        id: widget.track.id,
-        title: widget.track.title,
-        type: AudioContentType.music,
-        artist: widget.track.artist,
-        category: widget.track.category,
-        imageUrl: widget.track.imageUrl,
-      );
+      
+      // Only load and play if it's a different track than what's currently loaded
+      if (audioProvider.currentId != widget.track.id) {
+        audioProvider.loadAndPlay(
+          url: widget.track.audioUrl,
+          id: widget.track.id,
+          title: widget.track.title,
+          type: AudioContentType.music,
+          artist: widget.track.artist,
+          category: widget.track.category,
+          imageUrl: widget.track.imageUrl,
+        );
+      }
     });
   }
 
@@ -85,7 +91,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     
                     // Album Art
                     Hero(
-                      tag: 'music_art_${widget.track.id}',
+                      tag: widget.heroTag ?? 'music_art_${widget.track.id}',
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.7,
                         height: MediaQuery.of(context).size.width * 0.7,

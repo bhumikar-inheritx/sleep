@@ -1,4 +1,4 @@
-package com.dreamdrift.sleep.test
+package com.inheritx.dreamdrift
 
 import io.flutter.embedding.android.FlutterActivity
 

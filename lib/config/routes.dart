@@ -21,4 +21,5 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String breathingExercise = '/breathing';
   static const String bodyScan = '/body-scan';
+  static const String forgotPassword = '/forgot-password';
 }

@@ -56,19 +56,21 @@ class _MiniPlayerState extends State<MiniPlayer> with SingleTickerProviderStateM
           scale: audioProvider.isPlaying ? _pulseAnimation : const AlwaysStoppedAnimation(1.0),
           child: GestureDetector(
             onTap: () {
-              if (audioProvider.currentType == AudioContentType.story) {
+                if (audioProvider.currentType == AudioContentType.story) {
                 final content = Provider.of<ContentProvider>(context, listen: false);
                 final story = content.stories.firstWhere((s) => s.id == audioProvider.currentId);
+                final heroTag = 'mini_story_art_${story.id}';
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => StoryPlayerScreen(story: story)),
+                  MaterialPageRoute(builder: (context) => StoryPlayerScreen(story: story, heroTag: heroTag)),
                 );
               } else if (audioProvider.currentType == AudioContentType.music) {
                 final content = Provider.of<ContentProvider>(context, listen: false);
                 final track = content.music.firstWhere((t) => t.id == audioProvider.currentId);
+                final heroTag = 'mini_music_art_${track.id}';
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MusicPlayerScreen(track: track)),
+                  MaterialPageRoute(builder: (context) => MusicPlayerScreen(track: track, heroTag: heroTag)),
                 );
               }
             },
@@ -100,8 +102,8 @@ class _MiniPlayerState extends State<MiniPlayer> with SingleTickerProviderStateM
                   // Tiny cover art
                   Hero(
                     tag: audioProvider.currentType == AudioContentType.music 
-                        ? 'music_art_${audioProvider.currentId}' 
-                        : 'story_art_${audioProvider.currentId}',
+                        ? 'mini_music_art_${audioProvider.currentId}' 
+                        : 'mini_story_art_${audioProvider.currentId}',
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: SizedBox(
