@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>775759679374-pc47lbk64fbl7pmmkg66188chs9cmhd8.apps.googleusercontent.com</string>
+	<string>775759679374-2l5bupk08greqvmmbpe8ih799gh3l5lc.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.775759679374-pc47lbk64fbl7pmmkg66188chs9cmhd8</string>
+	<string>com.googleusercontent.apps.775759679374-2l5bupk08greqvmmbpe8ih799gh3l5lc</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>775759679374-kjg3ol1oi0rmergta4uguncaggea6s5e.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.inheritx.dreamdrift</string>
+	<string>com.inheritx.dreamdriftsleep.app</string>
 	<key>PROJECT_ID</key>
 	<string>dreamdrift-372e2</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:775759679374:ios:3b4c2bbc30406f47d45edf</string>
+	<string>1:775759679374:ios:9a1975c1a032cb1fd45edf</string>
 </dict>
 </plist>

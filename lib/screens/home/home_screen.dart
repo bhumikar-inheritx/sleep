@@ -197,16 +197,11 @@ class HomeScreen extends StatelessWidget {
           child: Text('Explore', style: Theme.of(context).textTheme.titleLarge),
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 100,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: actions.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 16),
-            itemBuilder: (context, index) {
-              final action = actions[index];
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: actions.map((action) {
               return GestureDetector(
                 onTap: () =>
                     Navigator.pushNamed(context, action['route'] as String),
@@ -241,7 +236,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               );
-            },
+            }).toList(),
           ),
         ),
       ],

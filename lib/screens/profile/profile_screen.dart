@@ -4,10 +4,13 @@ import 'package:provider/provider.dart';
 import '../../config/colors.dart';
 import '../../config/routes.dart';
 import '../../providers/auth_provider.dart';
-import '../../widgets/common/app_background.dart';
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
+
+import 'edit_profile_screen.dart';
+import 'notification_settings_screen.dart';
+import 'profile_bottom_sheets.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -34,12 +37,21 @@ class ProfileScreen extends StatelessWidget {
                   _SettingsItem(
                     icon: Icons.person_outline,
                     title: 'Edit Profile',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditProfileScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _SettingsItem(
                     icon: Icons.download_outlined,
                     title: 'Export Sleep Data',
-                    onTap: () {},
+                    onTap: () {
+                      ProfileBottomSheets.showExportDataSheet(context);
+                    },
                   ),
                 ],
               ),
@@ -60,16 +72,14 @@ class ProfileScreen extends StatelessWidget {
                   _SettingsItem(
                     icon: Icons.notifications_outlined,
                     title: 'Notifications',
-                    onTap: () {},
-                  ),
-                  _SettingsItem(
-                    icon: Icons.palette_outlined,
-                    title: 'App Theme',
-                    trailing: const Text(
-                      'Dark',
-                      style: TextStyle(color: SleepColors.textMuted),
-                    ),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationSettingsScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -85,7 +95,9 @@ class ProfileScreen extends StatelessWidget {
                       '30 min',
                       style: TextStyle(color: SleepColors.textMuted),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      ProfileBottomSheets.showTimerSelectionSheet(context);
+                    },
                   ),
                   _SettingsItem(
                     icon: Icons.volume_down_outlined,
@@ -94,7 +106,9 @@ class ProfileScreen extends StatelessWidget {
                       '5 min',
                       style: TextStyle(color: SleepColors.textMuted),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      ProfileBottomSheets.showFadeOutSheet(context);
+                    },
                   ),
                 ],
               ),
@@ -126,7 +140,6 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
-        final initials = auth.userName?.isNotEmpty == true ? auth.userName![0].toUpperCase() : 'S';
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
           child: Row(

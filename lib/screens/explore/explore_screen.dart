@@ -106,51 +106,52 @@ class ExploreScreen extends StatelessWidget {
 
     return SizedBox(
       height: 48,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: categories.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          return GestureDetector(
-            onTap: () => Navigator.pushNamed(context, cat['route'] as String),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: SleepColors.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: SleepColors.primaryLight.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-
-                children: [
-                  Icon(
-                    cat['icon'] as IconData,
-                    color: SleepColors.primaryLight,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      cat['title'] as String,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width - 48,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: categories.map((cat) {
+              return GestureDetector(
+                onTap: () => Navigator.pushNamed(context, cat['route'] as String),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: SleepColors.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: SleepColors.primaryLight.withValues(alpha: 0.3),
                     ),
                   ),
-                ],
-              ),
-            ),
-          );
-        },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        cat['icon'] as IconData,
+                        color: SleepColors.primaryLight,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        cat['title'] as String,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

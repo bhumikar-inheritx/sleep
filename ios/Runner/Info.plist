@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Sleep</string>
+	<string>Dream Drift Sleep</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>sleep</string>
+	<string>dream_drift_sleep</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -48,7 +48,9 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>GIDClientID</key>
-	<string>775759679374-pc47lbk64fbl7pmmkg66188chs9cmhd8.apps.googleusercontent.com</string>
+	<string>775759679374-2l5bupk08greqvmmbpe8ih799gh3l5lc.apps.googleusercontent.com</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires microphone access for audio playback and recording features within the sleep and meditation loops.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -56,7 +58,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.775759679374-pc47lbk64fbl7pmmkg66188chs9cmhd8</string>
+				<string>com.googleusercontent.apps.775759679374-2l5bupk08greqvmmbpe8ih799gh3l5lc</string>
 			</array>
 		</dict>
 	</array>

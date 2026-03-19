@@ -73,43 +73,48 @@ class _StoriesScreenState extends State<StoriesScreen> {
   Widget _buildCategorySelector() {
     return SizedBox(
       height: 40,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: AppConstants.storyCategories.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final category = AppConstants.storyCategories[index];
-          final isSelected = category == _selectedCategory;
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width - 48,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: AppConstants.storyCategories.map((category) {
+              final isSelected = category == _selectedCategory;
 
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedCategory = category;
-              });
-            },
-            child: AnimatedContainer(
-              duration: AppConstants.animFast,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? SleepColors.primary : SleepColors.surfaceLight,
-                borderRadius: BorderRadius.circular(20),
-                border: isSelected ? null : Border.all(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              child: Center(
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : SleepColors.textSecondary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    fontSize: 14,
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedCategory = category;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: AppConstants.animFast,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? SleepColors.primary : SleepColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(20),
+                    border: isSelected ? null : Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      category,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : SleepColors.textSecondary,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

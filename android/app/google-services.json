@@ -39,10 +39,54 @@
               "client_type": 3
             },
             {
-              "client_id": "775759679374-pc47lbk64fbl7pmmkg66188chs9cmhd8.apps.googleusercontent.com",
+              "client_id": "775759679374-2l5bupk08greqvmmbpe8ih799gh3l5lc.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.inheritx.dreamdrift"
+                "bundle_id": "com.inheritx.dreamdriftsleep.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775759679374:android:36e9eb3c2a6caae2d45edf",
+        "android_client_info": {
+          "package_name": "com.inheritx.dreamdrift.sleep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "775759679374-riveg4k1tsmod4ua0tobn3184v3k2co1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inheritx.dreamdrift.sleep",
+            "certificate_hash": "c6f2778d76128522cccfde11d4ae0da164107507"
+          }
+        },
+        {
+          "client_id": "775759679374-5hmnn3qkker9oj16ft53ehkr15ag2vbt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4sbFGfSg1-2Sm-J4IKVked2H09wPZBW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "775759679374-5hmnn3qkker9oj16ft53ehkr15ag2vbt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "775759679374-2l5bupk08greqvmmbpe8ih799gh3l5lc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.inheritx.dreamdriftsleep.app"
               }
             }
           ]

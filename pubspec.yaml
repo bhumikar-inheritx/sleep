@@ -1,8 +1,8 @@
 name: sleep
-description: "DreamDrift — A premium dedicated sleep application"
+description: "Dream Drift Sleep — A premium dedicated sleep application"
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.10.7
