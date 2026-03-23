@@ -5,11 +5,12 @@ import '../../config/constants.dart';
 import '../../widgets/common/mini_player.dart';
 
 import '../../models/soundscape.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/content_provider.dart';
 import '../../providers/sound_mixer_provider.dart';
+import '../../widgets/common/app_background.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import '../player/mixer_screen.dart';
-import '../../widgets/common/app_background.dart';
 
 class SoundscapesScreen extends StatefulWidget {
   const SoundscapesScreen({super.key});
@@ -192,31 +193,66 @@ class _SoundIcon extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: AnimatedContainer(
-                  duration: AppConstants.animFast,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isActive ? SleepColors.primary : SleepColors.surfaceLight,
-                    border: isActive 
-                        ? Border.all(color: SleepColors.primaryLight, width: 2)
-                        : Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                    boxShadow: isActive
-                        ? [
-                            BoxShadow(
-                              color: SleepColors.primary.withValues(alpha: 0.4),
-                              blurRadius: 12,
-                              spreadRadius: 2,
-                            )
-                          ]
-                        : [],
-                  ),
-                  child: Center(
-                    child: Icon(
-                      _getIconForName(sound.iconName),
-                      color: isActive ? Colors.white : SleepColors.textSecondary,
-                      size: 28,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned.fill(
+                      child: AnimatedContainer(
+                        duration: AppConstants.animFast,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isActive ? SleepColors.primary : SleepColors.surfaceLight,
+                          border: isActive 
+                              ? Border.all(color: SleepColors.primaryLight, width: 2)
+                              : Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                          boxShadow: isActive
+                              ? [
+                                  BoxShadow(
+                                    color: SleepColors.primary.withValues(alpha: 0.4),
+                                    blurRadius: 12,
+                                    spreadRadius: 2,
+                                  )
+                                ]
+                              : [],
+                        ),
+                        child: Center(
+                          child: Icon(
+                            _getIconForName(sound.iconName),
+                            color: isActive ? Colors.white : SleepColors.textSecondary,
+                            size: 28,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Consumer<AuthProvider>(
+                        builder: (context, auth, _) {
+                          final isFavorite = auth.profile?.favorites.contains(sound.id) ?? false;
+                          return GestureDetector(
+                            onTap: () {
+                              auth.toggleFavorite(sound.id);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: SleepColors.background.withValues(alpha: 0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isFavorite ? Icons.favorite : Icons.favorite_border,
+                                size: 12,
+                                color: isFavorite
+                                    ? Colors.redAccent
+                                    : Colors.white,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 8),

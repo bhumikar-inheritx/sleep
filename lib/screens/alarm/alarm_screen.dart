@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../config/colors.dart';
 import '../../providers/alarm_provider.dart';
-import '../../widgets/common/sleep_app_bar.dart';
-import '../../widgets/common/glass_card.dart';
 import '../../widgets/alarm/circular_clock_picker.dart';
 import '../../widgets/common/app_background.dart';
+import '../../widgets/common/glass_card.dart';
+import '../../widgets/common/sleep_app_bar.dart';
 
 class AlarmScreen extends StatelessWidget {
   const AlarmScreen({super.key});
@@ -18,10 +18,7 @@ class AlarmScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
-        appBar: const SleepAppBar(
-          title: 'Sleep schedule',
-          transparent: true,
-        ),
+        appBar: const SleepAppBar(title: 'Sleep schedule', transparent: true),
         body: SafeArea(
           bottom: false,
           child: Consumer<AlarmProvider>(
@@ -38,10 +35,14 @@ class AlarmScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    _buildTimeDisplays(context, settings.bedtime, settings.wakeTime),
-                    
+                    _buildTimeDisplays(
+                      context,
+                      settings.bedtime,
+                      settings.wakeTime,
+                    ),
+
                     const SizedBox(height: 32),
-                    
+
                     // The Circular Picker
                     Center(
                       child: CircularClockPicker(
@@ -49,13 +50,13 @@ class AlarmScreen extends StatelessWidget {
                         wakeTime: settings.wakeTime,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 48),
-                    
+
                     _buildRepeatDays(context, alarmProvider),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     _buildAlarmSettings(context, alarmProvider),
                   ],
                 ),
@@ -67,7 +68,11 @@ class AlarmScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeDisplays(BuildContext context, TimeOfDay bedtime, TimeOfDay wakeTime) {
+  Widget _buildTimeDisplays(
+    BuildContext context,
+    TimeOfDay bedtime,
+    TimeOfDay wakeTime,
+  ) {
     String formatTime(TimeOfDay time) {
       final now = DateTime.now();
       final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
@@ -84,9 +89,12 @@ class AlarmScreen extends StatelessWidget {
             children: [
               const Row(
                 children: [
-                   Icon(Icons.bed, color: SleepColors.primary, size: 16),
-                   SizedBox(width: 8),
-                   Text('Bedtime', style: TextStyle(color: SleepColors.textSecondary)),
+                  Icon(Icons.bed, color: SleepColors.primary, size: 16),
+                  SizedBox(width: 8),
+                  Text(
+                    'Bedtime',
+                    style: TextStyle(color: SleepColors.textSecondary),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -105,9 +113,16 @@ class AlarmScreen extends StatelessWidget {
             children: [
               const Row(
                 children: [
-                   Icon(Icons.wb_sunny, color: SleepColors.primaryLight, size: 16),
-                   SizedBox(width: 8),
-                   Text('Wake up', style: TextStyle(color: SleepColors.textSecondary)),
+                  Icon(
+                    Icons.wb_sunny,
+                    color: SleepColors.primaryLight,
+                    size: 16,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Wake up',
+                    style: TextStyle(color: SleepColors.textSecondary),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -130,8 +145,8 @@ class AlarmScreen extends StatelessWidget {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     // standard DateTime weekday mapping: 1 = Mon ... 7 = Sun.
     // However, the UI expects Sun-Sat (7, 1..6)
-    const dayIndices = [7, 1, 2, 3, 4, 5, 6]; 
-    
+    const dayIndices = [7, 1, 2, 3, 4, 5, 6];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
@@ -151,7 +166,7 @@ class AlarmScreen extends StatelessWidget {
             children: List.generate(7, (index) {
               final dayId = dayIndices[index];
               final isSelected = provider.settings.repeatDays.contains(dayId);
-              
+
               return GestureDetector(
                 onTap: () => provider.toggleRepeatDay(dayId),
                 child: Container(
@@ -165,9 +180,13 @@ class AlarmScreen extends StatelessWidget {
                     child: Text(
                       days[index],
                       style: TextStyle(
-                        color: isSelected ? SleepColors.background : SleepColors.textSecondary,
+                        color: isSelected
+                            ? SleepColors.background
+                            : SleepColors.textSecondary,
                         fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -202,7 +221,11 @@ class AlarmScreen extends StatelessWidget {
                 SwitchListTile(
                   title: Row(
                     children: [
-                      const Icon(Icons.alarm, color: SleepColors.textSecondary, size: 20),
+                      const Icon(
+                        Icons.alarm,
+                        color: SleepColors.textSecondary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         'Wake-up alarm',
@@ -214,14 +237,20 @@ class AlarmScreen extends StatelessWidget {
                   ),
                   value: provider.settings.isWakeAlarmEnabled,
                   onChanged: (val) => provider.toggleWakeAlarm(val),
-                  activeTrackColor: SleepColors.primaryLight.withValues(alpha: 0.5),
+                  activeTrackColor: SleepColors.primaryLight.withValues(
+                    alpha: 0.5,
+                  ),
                   activeThumbColor: SleepColors.primaryLight,
                 ),
                 Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
                 SwitchListTile(
                   title: Row(
                     children: [
-                      const Icon(Icons.bedtime, color: SleepColors.textSecondary, size: 20),
+                      const Icon(
+                        Icons.bedtime,
+                        color: SleepColors.textSecondary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         'Bedtime reminder',
@@ -233,8 +262,68 @@ class AlarmScreen extends StatelessWidget {
                   ),
                   value: provider.settings.isBedtimeReminderEnabled,
                   onChanged: (val) => provider.toggleBedtimeReminder(val),
-                  activeTrackColor: SleepColors.primary.withValues(alpha: 0.5),
+                  activeTrackColor: SleepColors.primary.withOpacity(0.5),
                   activeThumbColor: SleepColors.primary,
+                ),
+                Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
+                SwitchListTile(
+                  title: Row(
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome,
+                        color: SleepColors.textSecondary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Smart Wake',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  subtitle: const Text(
+                    'Wakes you gently in light sleep',
+                    style: TextStyle(
+                      color: SleepColors.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                  value: provider.settings.isSmartWakeEnabled,
+                  onChanged: (val) => provider.toggleSmartWake(val),
+                  activeTrackColor: Colors.tealAccent.withValues(alpha: 0.5),
+                  activeThumbColor: Colors.tealAccent,
+                ),
+                Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
+                SwitchListTile(
+                  title: Row(
+                    children: [
+                      const Icon(
+                        Icons.remove_red_eye_outlined,
+                        color: SleepColors.textSecondary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Lucid Dreaming Cues',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  subtitle: const Text(
+                    'Audio triggers during natural REM cycles',
+                    style: TextStyle(
+                      color: SleepColors.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                  value: provider.settings.isLucidTriggerEnabled,
+                  onChanged: (val) => provider.toggleLucidTrigger(val),
+                  activeTrackColor: Colors.purpleAccent.withValues(alpha: 0.5),
+                  activeThumbColor: Colors.purpleAccent,
                 ),
               ],
             ),

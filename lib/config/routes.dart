@@ -10,10 +10,12 @@ class AppRoutes {
   static const String home = '/home';
   static const String explore = '/explore';
   static const String stories = '/stories';
+  static const String meditations = '/meditations';
   static const String soundscapes = '/soundscapes';
   static const String music = '/music';
   static const String routines = '/routines';
   static const String storyPlayer = '/player/story';
+  static const String meditationPlayer = '/player/meditation';
   static const String musicPlayer = '/player/music';
   static const String mixer = '/player/mixer';
   static const String insights = '/insights';

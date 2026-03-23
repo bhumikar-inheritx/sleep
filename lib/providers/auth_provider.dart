@@ -1,26 +1,32 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../models/routine.dart';
+import '../models/user_profile.dart';
 import '../services/auth_service.dart';
+import '../services/storage_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
+  static const String _profileKey = 'user_profile';
 
   bool _isLoading = false;
   String? _error;
   StreamSubscription<User?>? _authSub;
+  UserProfile? _profile;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
+  UserProfile? get profile => _profile;
 
   /// True when a Firebase user is currently signed in.
   bool get isAuthenticated => _authService.currentUser != null;
 
   /// Display name of the current user.
-  String? get userName =>
-      _authService.currentUser?.displayName ?? 'Dreamer';
+  String? get userName => _authService.currentUser?.displayName ?? 'Dreamer';
 
   /// Email of the current user.
   String? get userEmail => _authService.currentUser?.email;
@@ -29,10 +35,146 @@ class AuthProvider with ChangeNotifier {
   User? get currentUser => _authService.currentUser;
 
   AuthProvider() {
+    _loadProfile();
     // Listen for auth state changes so the UI rebuilds reactively.
     _authSub = _authService.authStateChanges.listen((_) {
+      _loadProfile();
       notifyListeners();
     });
+  }
+
+  void _loadProfile() {
+    final profileJson = StorageService.getString(_profileKey);
+    if (profileJson != null) {
+      try {
+        _profile = UserProfile.fromJson(jsonDecode(profileJson));
+        _checkStreak();
+        _ensureDefaultRoutine();
+      } catch (e) {
+        _profile = UserProfile(name: userName ?? 'Dreamer');
+        _checkStreak();
+        _ensureDefaultRoutine();
+      }
+    } else {
+      _profile = UserProfile(name: userName ?? 'Dreamer');
+      _checkStreak();
+      _ensureDefaultRoutine();
+    }
+  }
+
+  Future<void> _ensureDefaultRoutine() async {
+    if (_profile == null || _profile!.windDownRoutine != null) return;
+
+    final defaultRoutine = SleepRoutine(
+      id: 'default_routine',
+      name: 'Sleep Ritual',
+      steps: [
+        const RoutineStep(
+          id: 'step_1',
+          type: RoutineStepType.breathing,
+          title: 'Calm Breathing',
+          duration: Duration(minutes: 2),
+        ),
+        const RoutineStep(
+          id: 'step_2',
+          type: RoutineStepType.journal,
+          title: 'Quick Reflect',
+          duration: Duration(minutes: 3),
+        ),
+        const RoutineStep(
+          id: 'step_3',
+          type: RoutineStepType.soundscape,
+          title: 'Night Ambience',
+          duration: Duration(minutes: 10),
+        ),
+      ],
+    );
+    await updateProfile(_profile!.copyWith(windDownRoutine: defaultRoutine));
+  }
+
+  Future<void> _checkStreak() async {
+    if (_profile == null) return;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (_profile!.lastActiveDate == null) {
+      // First time active
+      await updateProfile(
+        _profile!.copyWith(streakDays: 1, lastActiveDate: today),
+      );
+      return;
+    }
+
+    final lastActive = _profile!.lastActiveDate!;
+    final lastActiveDay = DateTime(
+      lastActive.year,
+      lastActive.month,
+      lastActive.day,
+    );
+
+    final difference = today.difference(lastActiveDay).inDays;
+
+    if (difference == 1) {
+      // Continued streak
+      await updateProfile(
+        _profile!.copyWith(
+          streakDays: _profile!.streakDays + 1,
+          lastActiveDate: today,
+        ),
+      );
+    } else if (difference > 1) {
+      // Broken streak
+      await updateProfile(
+        _profile!.copyWith(streakDays: 1, lastActiveDate: today),
+      );
+    }
+  }
+
+  Future<void> updateProfile(UserProfile newProfile) async {
+    _profile = newProfile;
+    await StorageService.setString(
+      _profileKey,
+      jsonEncode(newProfile.toJson()),
+    );
+    notifyListeners();
+  }
+
+  Future<void> toggleFavorite(String contentId) async {
+    if (_profile == null) return;
+
+    final currentFavorites = List<String>.from(_profile!.favorites);
+    if (currentFavorites.contains(contentId)) {
+      currentFavorites.remove(contentId);
+    } else {
+      currentFavorites.add(contentId);
+    }
+
+    await updateProfile(_profile!.copyWith(favorites: currentFavorites));
+  }
+
+  Future<void> addToRecentlyPlayed(String contentId) async {
+    if (_profile == null) return;
+
+    final currentHistory = List<String>.from(_profile!.recentlyPlayed);
+
+    // Remove if exists to move to top
+    currentHistory.remove(contentId);
+
+    // Add to top
+    currentHistory.insert(0, contentId);
+
+    // Keep only last 10
+    if (currentHistory.length > 10) {
+      currentHistory.removeLast();
+    }
+
+    await updateProfile(_profile!.copyWith(recentlyPlayed: currentHistory));
+  }
+
+  Future<void> updateRoutine(SleepRoutine routine) async {
+    if (_profile == null) return;
+    await updateProfile(_profile!.copyWith(windDownRoutine: routine));
   }
 
   @override
@@ -75,10 +217,7 @@ class AuthProvider with ChangeNotifier {
     _error = null;
 
     try {
-      await _authService.signInWithEmail(
-        email: email,
-        password: password,
-      );
+      await _authService.signInWithEmail(email: email, password: password);
       _setLoading(false);
       return true;
     } on FirebaseAuthException catch (e) {

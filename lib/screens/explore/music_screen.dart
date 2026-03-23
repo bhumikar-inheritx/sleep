@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../config/colors.dart';
 import '../../config/constants.dart';
-import '../../providers/audio_player_provider.dart';
-import '../../widgets/common/mini_player.dart';
-
 import '../../models/sleep_track.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/content_provider.dart';
+import '../../widgets/common/app_background.dart';
 import '../../widgets/common/glass_card.dart';
+import '../../widgets/common/mini_player.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import '../player/music_player_screen.dart';
-import '../../widgets/common/app_background.dart';
 
 class MusicScreen extends StatefulWidget {
   const MusicScreen({super.key});
@@ -31,10 +31,7 @@ class _MusicScreenState extends State<MusicScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
-        appBar: const SleepAppBar(
-          title: 'Sleep Music',
-          transparent: true,
-        ),
+        appBar: const SleepAppBar(title: 'Sleep Music', transparent: true),
         body: SafeArea(
           child: Stack(
             children: [
@@ -42,7 +39,9 @@ class _MusicScreenState extends State<MusicScreen> {
                 builder: (context, contentProvider, child) {
                   if (contentProvider.isLoading) {
                     return const Center(
-                      child: CircularProgressIndicator(color: SleepColors.primary),
+                      child: CircularProgressIndicator(
+                        color: SleepColors.primary,
+                      ),
                     );
                   }
 
@@ -58,14 +57,12 @@ class _MusicScreenState extends State<MusicScreen> {
                     children: [
                       _buildCategorySelector(),
                       const SizedBox(height: 16),
-                      Expanded(
-                        child: _buildMusicList(tracks),
-                      ),
+                      Expanded(child: _buildMusicList(tracks)),
                     ],
                   );
                 },
               ),
-              
+
               // Floating Mini Player
               const Positioned(
                 left: 0,
@@ -92,6 +89,7 @@ class _MusicScreenState extends State<MusicScreen> {
             minWidth: MediaQuery.of(context).size.width - 48,
           ),
           child: Row(
+            spacing: 20,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: _musicCategories.map((category) {
               final isSelected = category == _selectedCategory;
@@ -104,18 +102,31 @@ class _MusicScreenState extends State<MusicScreen> {
                 },
                 child: AnimatedContainer(
                   duration: AppConstants.animFast,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected ? SleepColors.primary : SleepColors.surfaceLight,
+                    color: isSelected
+                        ? SleepColors.primary
+                        : SleepColors.surfaceLight,
                     borderRadius: BorderRadius.circular(20),
-                    border: isSelected ? null : Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    border: isSelected
+                        ? null
+                        : Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
                   ),
                   child: Center(
                     child: Text(
                       category,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : SleepColors.textSecondary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : SleepColors.textSecondary,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                         fontSize: 14,
                       ),
                       maxLines: 1,
@@ -136,15 +147,20 @@ class _MusicScreenState extends State<MusicScreen> {
       return Center(
         child: Text(
           'No tracks found in this category.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: SleepColors.textMuted,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: SleepColors.textMuted),
         ),
       );
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 16.0, bottom: 100.0),
+      padding: const EdgeInsets.only(
+        left: 24.0,
+        right: 24.0,
+        top: 16.0,
+        bottom: 100.0,
+      ),
       physics: const BouncingScrollPhysics(),
       itemCount: tracks.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
@@ -188,14 +204,17 @@ class _MusicCard extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: SleepColors.surfaceLight,
-                    child: const Icon(Icons.music_note, color: SleepColors.primaryLight),
+                    child: const Icon(
+                      Icons.music_note,
+                      color: SleepColors.primaryLight,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
           const SizedBox(width: 16),
-          
+
           // Details
           Expanded(
             child: Column(
@@ -226,14 +245,20 @@ class _MusicCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: SleepColors.surfaceGlass,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         track.category,
-                        style: const TextStyle(fontSize: 10, color: SleepColors.primaryLight),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: SleepColors.primaryLight,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -249,7 +274,29 @@ class _MusicCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
+          // Favorite Icon
+          Consumer<AuthProvider>(
+            builder: (context, auth, _) {
+              final isFavorite =
+                  auth.profile?.favorites.contains(track.id) ?? false;
+              return IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  size: 20,
+                  color: isFavorite
+                      ? Colors.redAccent
+                      : SleepColors.textMuted,
+                ),
+                onPressed: () => auth.toggleFavorite(track.id),
+              );
+            },
+          ),
+
+          const SizedBox(width: 12),
+
           // Play Icon
           Container(
             width: 40,
@@ -258,7 +305,10 @@ class _MusicCard extends StatelessWidget {
               shape: BoxShape.circle,
               color: SleepColors.primary.withValues(alpha: 0.1),
             ),
-            child: const Icon(Icons.play_arrow_rounded, color: SleepColors.primaryLight),
+            child: const Icon(
+              Icons.play_arrow_rounded,
+              color: SleepColors.primaryLight,
+            ),
           ),
         ],
       ),

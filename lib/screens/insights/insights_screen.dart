@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../config/colors.dart';
 import '../../models/sleep_log.dart';
@@ -56,9 +57,19 @@ class InsightsScreen extends StatelessWidget {
                   // Quick Recap
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Text(
-                      'Quick recap',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Quick recap',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.share_outlined, color: SleepColors.primaryLight, size: 20),
+                          onPressed: () => _shareSleepReport(tracker),
+                          tooltip: 'Share Report',
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -367,5 +378,22 @@ class InsightsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _shareSleepReport(SleepTrackerProvider tracker) {
+    final avgDuration = tracker.averageSleepDuration;
+    final avgQuality = (tracker.averageSleepQuality * 20).toInt();
+    
+    final String report = '''
+🌙 My DreamDrift Sleep Report 🌙
+
+Over the last 7 days:
+⏳ Average Sleep: ${avgDuration.inHours}h ${avgDuration.inMinutes % 60}m
+⭐ Average Quality: $avgQuality%
+
+Driven by DreamDrift. Sleep better tonight! 💤
+    ''';
+
+    Share.share(report, subject: 'My DreamDrift Sleep Insights');
   }
 }

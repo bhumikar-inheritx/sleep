@@ -66,4 +66,13 @@ class AppConstants {
     'Ambient',
     'Classical',
   ];
+
+  static const List<String> meditationCategories = [
+    'All',
+    'Body Scan',
+    'Gratitude',
+    'Yoga Nidra',
+    'Breathing',
+    'Morning',
+  ];
 }

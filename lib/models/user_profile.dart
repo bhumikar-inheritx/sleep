@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'routine.dart';
+
 /// User profile & sleep preferences.
 class UserProfile {
   final String? uid;
@@ -8,7 +11,12 @@ class UserProfile {
   final List<String> sleepGoals;
   final List<String> sleepChallenges;
   final List<String> preferredContent;
+  final List<String> favorites;
   final int streakDays;
+  final DateTime? lastActiveDate;
+  final List<String> completedChallenges;
+  final List<String> recentlyPlayed;
+  final SleepRoutine? windDownRoutine;
   final bool onboardingComplete;
 
   const UserProfile({
@@ -20,7 +28,12 @@ class UserProfile {
     this.sleepGoals = const [],
     this.sleepChallenges = const [],
     this.preferredContent = const [],
+    this.favorites = const [],
     this.streakDays = 0,
+    this.lastActiveDate,
+    this.completedChallenges = const [],
+    this.recentlyPlayed = const [],
+    this.windDownRoutine,
     this.onboardingComplete = false,
   });
 
@@ -38,7 +51,16 @@ class UserProfile {
       sleepGoals: _parseStringList(json['sleepGoals']),
       sleepChallenges: _parseStringList(json['sleepChallenges']),
       preferredContent: _parseStringList(json['preferredContent']),
+      favorites: _parseStringList(json['favorites']),
       streakDays: json['streakDays'] as int? ?? 0,
+      lastActiveDate: json['lastActiveDate'] != null
+          ? DateTime.tryParse(json['lastActiveDate'] as String)
+          : null,
+      completedChallenges: _parseStringList(json['completedChallenges']),
+      recentlyPlayed: _parseStringList(json['recentlyPlayed']),
+      windDownRoutine: json['windDownRoutine'] != null
+          ? SleepRoutine.fromJson(json['windDownRoutine'] as Map<String, dynamic>)
+          : null,
       onboardingComplete: json['onboardingComplete'] as bool? ?? false,
     );
   }
@@ -54,7 +76,12 @@ class UserProfile {
       'sleepGoals': sleepGoals,
       'sleepChallenges': sleepChallenges,
       'preferredContent': preferredContent,
+      'favorites': favorites,
       'streakDays': streakDays,
+      'lastActiveDate': lastActiveDate?.toIso8601String(),
+      'completedChallenges': completedChallenges,
+      'recentlyPlayed': recentlyPlayed,
+      'windDownRoutine': windDownRoutine?.toJson(),
       'onboardingComplete': onboardingComplete,
     };
   }
@@ -68,7 +95,12 @@ class UserProfile {
     List<String>? sleepGoals,
     List<String>? sleepChallenges,
     List<String>? preferredContent,
+    List<String>? favorites,
     int? streakDays,
+    DateTime? lastActiveDate,
+    List<String>? completedChallenges,
+    List<String>? recentlyPlayed,
+    SleepRoutine? windDownRoutine,
     bool? onboardingComplete,
   }) {
     return UserProfile(
@@ -80,7 +112,12 @@ class UserProfile {
       sleepGoals: sleepGoals ?? this.sleepGoals,
       sleepChallenges: sleepChallenges ?? this.sleepChallenges,
       preferredContent: preferredContent ?? this.preferredContent,
+      favorites: favorites ?? this.favorites,
       streakDays: streakDays ?? this.streakDays,
+      lastActiveDate: lastActiveDate ?? this.lastActiveDate,
+      completedChallenges: completedChallenges ?? this.completedChallenges,
+      recentlyPlayed: recentlyPlayed ?? this.recentlyPlayed,
+      windDownRoutine: windDownRoutine ?? this.windDownRoutine,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     );
   }

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../config/colors.dart';
 import '../../config/constants.dart';
-import '../../widgets/common/mini_player.dart';
-
 import '../../models/sleep_story.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/content_provider.dart';
+import '../../widgets/common/app_background.dart';
 import '../../widgets/common/glass_card.dart';
+import '../../widgets/common/mini_player.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import '../player/story_player_screen.dart';
-import '../../widgets/common/app_background.dart';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({super.key});
@@ -27,10 +28,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
-        appBar: const SleepAppBar(
-          title: 'Sleep Stories',
-          transparent: true,
-        ),
+        appBar: const SleepAppBar(title: 'Sleep Stories', transparent: true),
         body: SafeArea(
           child: Stack(
             children: [
@@ -38,24 +36,26 @@ class _StoriesScreenState extends State<StoriesScreen> {
                 builder: (context, contentProvider, child) {
                   if (contentProvider.isLoading) {
                     return const Center(
-                      child: CircularProgressIndicator(color: SleepColors.primary),
+                      child: CircularProgressIndicator(
+                        color: SleepColors.primary,
+                      ),
                     );
                   }
 
-                  final stories = contentProvider.getStoriesByCategory(_selectedCategory);
+                  final stories = contentProvider.getStoriesByCategory(
+                    _selectedCategory,
+                  );
 
                   return Column(
                     children: [
                       _buildCategorySelector(),
                       const SizedBox(height: 16),
-                      Expanded(
-                        child: _buildStoriesGrid(stories),
-                      ),
+                      Expanded(child: _buildStoriesGrid(stories)),
                     ],
                   );
                 },
               ),
-              
+
               // Floating Mini Player
               const Positioned(
                 left: 0,
@@ -82,6 +82,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
             minWidth: MediaQuery.of(context).size.width - 48,
           ),
           child: Row(
+            spacing: 20,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: AppConstants.storyCategories.map((category) {
               final isSelected = category == _selectedCategory;
@@ -94,18 +95,31 @@ class _StoriesScreenState extends State<StoriesScreen> {
                 },
                 child: AnimatedContainer(
                   duration: AppConstants.animFast,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected ? SleepColors.primary : SleepColors.surfaceLight,
+                    color: isSelected
+                        ? SleepColors.primary
+                        : SleepColors.surfaceLight,
                     borderRadius: BorderRadius.circular(20),
-                    border: isSelected ? null : Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    border: isSelected
+                        ? null
+                        : Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
                   ),
                   child: Center(
                     child: Text(
                       category,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : SleepColors.textSecondary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : SleepColors.textSecondary,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                         fontSize: 14,
                       ),
                     ),
@@ -124,15 +138,20 @@ class _StoriesScreenState extends State<StoriesScreen> {
       return Center(
         child: Text(
           'No stories found in this category.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: SleepColors.textMuted,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: SleepColors.textMuted),
         ),
       );
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 16.0, bottom: 100.0),
+      padding: const EdgeInsets.only(
+        left: 24.0,
+        right: 24.0,
+        top: 16.0,
+        bottom: 100.0,
+      ),
       physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -173,22 +192,30 @@ class _StoryCard extends StatelessWidget {
           Hero(
             tag: 'story_art_${story.id}',
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadiusMedium,
+              ),
               child: Image.asset(
                 story.imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: SleepColors.surfaceLight,
-                  child: const Icon(Icons.auto_stories, color: SleepColors.primaryLight, size: 40),
+                  child: const Icon(
+                    Icons.auto_stories,
+                    color: SleepColors.primaryLight,
+                    size: 40,
+                  ),
                 ),
               ),
             ),
           ),
-          
+
           // Dark gradient overlay
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+              borderRadius: BorderRadius.circular(
+                AppConstants.borderRadiusMedium,
+              ),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -212,25 +239,63 @@ class _StoryCard extends StatelessWidget {
                 // Top row: New or Premium badges
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (story.isPremium)
-                      const Icon(Icons.lock_outline, color: SleepColors.gold, size: 16)
-                    else
-                      const SizedBox(),
-                    if (story.isNew)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: SleepColors.primary,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text('NEW', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700)),
-                      )
-                    else
-                      const SizedBox(),
+                    Row(
+                      children: [
+                        if (story.isPremium)
+                          const Icon(
+                            Icons.lock_outline,
+                            color: SleepColors.gold,
+                            size: 16,
+                          )
+                        else
+                          const SizedBox(),
+                        if (story.isPremium && story.isNew)
+                          const SizedBox(width: 4),
+                        if (story.isNew)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: SleepColors.primary,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'NEW',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          )
+                        else
+                          const SizedBox(),
+                      ],
+                    ),
+                    Consumer<AuthProvider>(
+                      builder: (context, auth, _) {
+                        final isFavorite =
+                            auth.profile?.favorites.contains(story.id) ?? false;
+                        return GestureDetector(
+                          onTap: () {
+                            auth.toggleFavorite(story.id);
+                          },
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            size: 20,
+                            color: isFavorite
+                                ? Colors.redAccent
+                                : Colors.white70,
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
-                
+
                 // Bottom texts
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,7 +323,7 @@ class _StoryCard extends StatelessWidget {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/alarm_settings.dart';
 import '../services/storage_service.dart';
+import '../services/notifications_service.dart';
 
 class AlarmProvider extends ChangeNotifier {
   static const String _storageKey = 'alarm_settings';
@@ -38,6 +39,11 @@ class AlarmProvider extends ChangeNotifier {
           isWakeAlarmEnabled: json['isWakeAlarmEnabled'] as bool,
           isBedtimeReminderEnabled: json['isBedtimeReminderEnabled'] as bool,
           wakeSoundId: json['wakeSoundId'] as String,
+          isSmartWakeEnabled: json['isSmartWakeEnabled'] as bool? ?? false,
+          smartWakeWindow: json['smartWakeWindow'] as int? ?? 30,
+          isLucidTriggerEnabled: json['isLucidTriggerEnabled'] as bool? ?? false,
+          lucidTriggerInterval: json['lucidTriggerInterval'] as int? ?? 90,
+          lucidTriggerSoundId: json['lucidTriggerSoundId'] as String? ?? 'lucid_cue',
         );
       }
     } catch (e) {
@@ -60,16 +66,54 @@ class AlarmProvider extends ChangeNotifier {
         'isWakeAlarmEnabled': _settings.isWakeAlarmEnabled,
         'isBedtimeReminderEnabled': _settings.isBedtimeReminderEnabled,
         'wakeSoundId': _settings.wakeSoundId,
+        'isSmartWakeEnabled': _settings.isSmartWakeEnabled,
+        'smartWakeWindow': _settings.smartWakeWindow,
+        'isLucidTriggerEnabled': _settings.isLucidTriggerEnabled,
+        'lucidTriggerInterval': _settings.lucidTriggerInterval,
+        'lucidTriggerSoundId': _settings.lucidTriggerSoundId,
       };
       
       await StorageService.setString(_storageKey, jsonEncode(json));
       
-      // In a real app, you would also interact with local notifications plugin here
-      // to schedule/cancel the actual OS-level alarms and reminders based on these settings.
-      
+      // Schedule/Cancel Notifications
+      await _updateScheduledNotifications();
     } catch (e) {
       debugPrint('Error saving alarm settings: $e');
     }
+  }
+
+  Future<void> _updateScheduledNotifications() async {
+    // Cancel existing
+    await NotificationsService.cancelAll();
+
+    if (_settings.isBedtimeReminderEnabled) {
+      // 1. Switch Off Alert (1 hour before bedtime)
+      final switchOffTime = _subtractMinutes(_settings.bedtime, 60);
+      await NotificationsService.scheduleDailyNotification(
+        id: 100,
+        title: 'Switch Off Screens 📱',
+        body: 'It\'s time to put away your phone and start winding down.',
+        hour: switchOffTime.hour,
+        minute: switchOffTime.minute,
+      );
+
+      // 2. Bedtime Reminder (15 mins before bedtime)
+      final reminderTime = _subtractMinutes(_settings.bedtime, 15);
+      await NotificationsService.scheduleDailyNotification(
+        id: 101,
+        title: 'Bedtime is approaching 🌙',
+        body: 'Time to head to bed in 15 minutes for a restful night.',
+        hour: reminderTime.hour,
+        minute: reminderTime.minute,
+      );
+    }
+  }
+
+  TimeOfDay _subtractMinutes(TimeOfDay time, int minutes) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute)
+        .subtract(Duration(minutes: minutes));
+    return TimeOfDay(hour: dt.hour, minute: dt.minute);
   }
 
   void updateSettings(AlarmSettings newSettings) {
@@ -103,5 +147,13 @@ class AlarmProvider extends ChangeNotifier {
       days.sort();
     }
     updateSettings(_settings.copyWith(repeatDays: days));
+  }
+
+  void toggleSmartWake(bool isEnabled) {
+    updateSettings(_settings.copyWith(isSmartWakeEnabled: isEnabled));
+  }
+
+  void toggleLucidTrigger(bool isEnabled) {
+    updateSettings(_settings.copyWith(isLucidTriggerEnabled: isEnabled));
   }
 }

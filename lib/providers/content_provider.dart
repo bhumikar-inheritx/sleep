@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/meditation.dart';
 import '../models/sleep_story.dart';
 import '../models/sleep_track.dart';
 import '../models/soundscape.dart';
@@ -14,10 +15,12 @@ class ContentProvider extends ChangeNotifier {
   List<SleepStory> _stories = [];
   List<SleepTrack> _music = [];
   List<Soundscape> _sounds = [];
+  List<Meditation> _meditations = [];
 
   List<SleepStory> get stories => _stories;
   List<SleepTrack> get music => _music;
   List<Soundscape> get sounds => _sounds;
+  List<Meditation> get meditations => _meditations;
 
   ContentProvider() {
     _loadContent();
@@ -273,6 +276,41 @@ class ContentProvider extends ChangeNotifier {
       ),
     ];
 
+    // ─── Meditations (from assets/audio/music_sounds/ mostly for now) ───
+    _meditations = [
+      Meditation(
+        id: 'med_1',
+        title: 'Deep Body Scan',
+        instructor: 'Sarah Jenkins',
+        description: 'A guided journey through your body to release physical tension.',
+        category: 'Body Scan',
+        imageUrl: 'assets/images/story_giant_panda.png',
+        audioUrl: 'assets/audio/music_sounds/calming-music-for-deep-sleep-457510.mp3',
+        duration: const Duration(minutes: 15),
+        isNew: true,
+      ),
+      Meditation(
+        id: 'med_2',
+        title: 'Gratitude Reflection',
+        instructor: 'Marcus Cole',
+        description: 'End your day by reflecting on the positive moments.',
+        category: 'Gratitude',
+        imageUrl: 'assets/images/story_midnight_train.png',
+        audioUrl: 'assets/audio/music_sounds/crystaleyeofficial-stress-relief-nature-background-meditation-music-track-328750.mp3',
+        duration: const Duration(minutes: 10),
+      ),
+      Meditation(
+        id: 'med_3',
+        title: 'Sleep Yoga Nidra',
+        instructor: 'Dr. Elena Rostova',
+        description: 'Deep relaxation technique to bring you into a state of conscious sleep.',
+        category: 'Yoga Nidra',
+        imageUrl: 'assets/images/story_lavender_field.png',
+        audioUrl: 'assets/audio/music_sounds/meditativetiger-yoga-nidra-soundscape-deep-relaxation-489162.mp3',
+        duration: const Duration(minutes: 25),
+      ),
+    ];
+
     _isLoading = false;
     notifyListeners();
   }
@@ -285,5 +323,10 @@ class ContentProvider extends ChangeNotifier {
   List<SleepTrack> getMusicByCategory(String category) {
     if (category == 'All') return _music;
     return _music.where((t) => t.category == category).toList();
+  }
+
+  List<Meditation> getMeditationsByCategory(String category) {
+    if (category == 'All') return _meditations;
+    return _meditations.where((m) => m.category == category).toList();
   }
 }

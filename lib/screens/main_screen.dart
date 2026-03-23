@@ -6,6 +6,7 @@ import '../widgets/common/app_background.dart';
 import 'explore/explore_screen.dart';
 import 'home/home_screen.dart';
 import 'insights/insights_screen.dart';
+import 'journal/journal_screen.dart';
 import 'profile/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const ExploreScreen(),
+    const JournalScreen(),
     const InsightsScreen(),
     const ProfileScreen(),
   ];
@@ -81,6 +83,11 @@ class _MainScreenState extends State<MainScreen> {
                   icon: Icon(Icons.explore_outlined),
                   activeIcon: Icon(Icons.explore),
                   label: 'Explore',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.book_outlined),
+                  activeIcon: Icon(Icons.book),
+                  label: 'Journal',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.bar_chart_outlined),

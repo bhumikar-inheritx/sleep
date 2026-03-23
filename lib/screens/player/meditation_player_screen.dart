@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/colors.dart';
 import '../../config/constants.dart';
-import '../../models/sleep_track.dart';
+import '../../models/meditation.dart';
 import '../../providers/audio_player_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/glass_card.dart';
 
-class MusicPlayerScreen extends StatefulWidget {
-  final SleepTrack track;
+class MeditationPlayerScreen extends StatefulWidget {
+  final Meditation meditation;
   final String? heroTag;
 
-  const MusicPlayerScreen({
+  const MeditationPlayerScreen({
     super.key,
-    required this.track,
+    required this.meditation,
     this.heroTag,
   });
 
   @override
-  State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
+  State<MeditationPlayerScreen> createState() => _MeditationPlayerScreenState();
 }
 
-class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
+class _MeditationPlayerScreenState extends State<MeditationPlayerScreen> {
   bool _showControls = true;
   bool _isDragging = false;
   double _dragValue = 0.0;
@@ -34,18 +34,17 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
       // Track in history
-      authProvider.addToRecentlyPlayed(widget.track.id);
-
-      // Only load and play if it's a different track than what's currently loaded
-      if (audioProvider.currentId != widget.track.id) {
+      authProvider.addToRecentlyPlayed(widget.meditation.id);
+      
+      if (audioProvider.currentId != widget.meditation.id) {
         audioProvider.loadAndPlay(
-          url: widget.track.audioUrl,
-          id: widget.track.id,
-          title: widget.track.title,
-          type: AudioContentType.music,
-          artist: widget.track.artist,
-          category: widget.track.category,
-          imageUrl: widget.track.imageUrl,
+          url: widget.meditation.audioUrl,
+          id: widget.meditation.id,
+          title: widget.meditation.title,
+          type: AudioContentType.meditation,
+          artist: widget.meditation.instructor,
+          category: widget.meditation.category,
+          imageUrl: widget.meditation.imageUrl,
         );
       }
     });
@@ -77,7 +76,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
           {'label': '30 Minutes', 'duration': const Duration(minutes: 30)},
           {'label': '45 Minutes', 'duration': const Duration(minutes: 45)},
           {'label': '1 Hour', 'duration': const Duration(hours: 1)},
-          {'label': 'End of Track', 'duration': provider.duration - provider.position},
+          {'label': 'End of Session', 'duration': provider.duration - provider.position},
         ];
 
         return SafeArea(
@@ -131,55 +130,54 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background Image (Blurred for music)
-            Image.asset(
-              widget.track.imageUrl,
-              fit: BoxFit.cover,
+            Hero(
+              tag: widget.heroTag ?? 'meditation_art_${widget.meditation.id}',
+              child: Image.asset(
+                widget.meditation.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: SleepColors.surfaceLight,
+                    child: const Icon(
+                      Icons.self_improvement,
+                      color: SleepColors.textMuted,
+                      size: 80,
+                    ),
+                  );
+                },
+              ),
             ),
             
-            // Blur overlay for music screen
-            Container(
-              color: SleepColors.background.withValues(alpha: 0.85),
+            AnimatedContainer(
+              duration: AppConstants.animFast,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: _showControls 
+                      ? [
+                          SleepColors.background.withValues(alpha: 0.7),
+                          SleepColors.background.withValues(alpha: 0.3),
+                          SleepColors.background.withValues(alpha: 0.9),
+                        ]
+                      : [
+                          SleepColors.background.withValues(alpha: 0.2),
+                          Colors.transparent,
+                          SleepColors.background.withValues(alpha: 0.5),
+                        ],
+                  stops: const [0.0, 0.4, 1.0],
+                ),
+              ),
             ),
 
-            // UI Elements
             SafeArea(
               child: AnimatedOpacity(
                 opacity: _showControls ? 1.0 : 0.0,
                 duration: AppConstants.animFast,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Top Bar
                     _buildTopBar(context),
-                    
-                    const Spacer(),
-                    
-                    // Album Art
-                    Hero(
-                      tag: widget.heroTag ?? 'music_art_${widget.track.id}',
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        height: MediaQuery.of(context).size.width * 0.7,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.5),
-                              blurRadius: 30,
-                              offset: const Offset(0, 15),
-                            ),
-                          ],
-                          image: DecorationImage(
-                            image: AssetImage(widget.track.imageUrl),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    const Spacer(),
-                    
-                    // Bottom Controls
                     _buildBottomControls(context),
                   ],
                 ),
@@ -211,11 +209,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.music_note, color: SleepColors.primaryLight, size: 14),
+                  const Icon(Icons.self_improvement, color: SleepColors.primaryLight, size: 14),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      widget.track.category,
+                      widget.meditation.category,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -247,16 +245,15 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Title & Author
                 Text(
-                  widget.track.title,
+                  widget.meditation.title,
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                   maxLines: 2,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  widget.track.artist,
+                  'Guided by ${widget.meditation.instructor}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: SleepColors.primaryLight,
                   ),
@@ -264,7 +261,6 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 
                 const SizedBox(height: 32),
                 
-                // Progress Slider
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 4,
@@ -299,7 +295,6 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   ),
                 ),
                 
-                // Time Indicators
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Row(
@@ -325,7 +320,6 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Playback Controls
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -337,11 +331,12 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                         onPressed: () => _showTimerSheet(context, audioProvider),
                       ),
                     IconButton(
-                      icon: const Icon(Icons.skip_previous, color: Colors.white, size: 32),
-                      onPressed: () {}, // Previous track logic
+                      icon: const Icon(Icons.replay_10, color: Colors.white, size: 32),
+                      onPressed: () {
+                        audioProvider.seek(audioProvider.position - const Duration(seconds: 10));
+                      },
                     ),
                     
-                    // Play/Pause Button
                     GestureDetector(
                       onTap: audioProvider.isLoading ? null : audioProvider.togglePlayPause,
                       child: Container(
@@ -372,12 +367,14 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     ),
                     
                     IconButton(
-                      icon: const Icon(Icons.skip_next, color: Colors.white, size: 32),
-                      onPressed: () {}, // Next track logic
+                      icon: const Icon(Icons.forward_10, color: Colors.white, size: 32),
+                      onPressed: () {
+                         audioProvider.seek(audioProvider.position + const Duration(seconds: 10));
+                      },
                     ),
                     Consumer<AuthProvider>(
                       builder: (context, auth, _) {
-                        final isFavorite = auth.profile?.favorites.contains(widget.track.id) ?? false;
+                        final isFavorite = auth.profile?.favorites.contains(widget.meditation.id) ?? false;
                         return IconButton(
                           icon: Icon(
                             isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -385,7 +382,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                 ? Colors.redAccent
                                 : SleepColors.textSecondary,
                           ),
-                          onPressed: () => auth.toggleFavorite(widget.track.id),
+                          onPressed: () => auth.toggleFavorite(widget.meditation.id),
                         );
                       },
                     ),

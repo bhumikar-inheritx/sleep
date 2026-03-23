@@ -5,8 +5,13 @@ class AlarmSettings {
   final TimeOfDay wakeTime;
   final List<int> repeatDays; // 1 = Monday, 7 = Sunday
   final bool isWakeAlarmEnabled;
-  final bool isBedtimeReminderEnabled;
+   final bool isBedtimeReminderEnabled;
   final String wakeSoundId; // 'chimes', 'birds', 'sunrise', etc.
+  final bool isSmartWakeEnabled;
+  final int smartWakeWindow; // minutes
+  final bool isLucidTriggerEnabled;
+  final int lucidTriggerInterval; // minutes
+  final String lucidTriggerSoundId;
 
   const AlarmSettings({
     required this.bedtime,
@@ -15,6 +20,11 @@ class AlarmSettings {
     required this.isWakeAlarmEnabled,
     required this.isBedtimeReminderEnabled,
     required this.wakeSoundId,
+    this.isSmartWakeEnabled = false,
+    this.smartWakeWindow = 30,
+    this.isLucidTriggerEnabled = false,
+    this.lucidTriggerInterval = 90,
+    this.lucidTriggerSoundId = 'lucid_cue',
   });
 
   factory AlarmSettings.defaultSettings() {
@@ -25,6 +35,11 @@ class AlarmSettings {
       isWakeAlarmEnabled: true,
       isBedtimeReminderEnabled: true,
       wakeSoundId: 'gentle_chimes',
+      isSmartWakeEnabled: false,
+      smartWakeWindow: 30,
+      isLucidTriggerEnabled: false,
+      lucidTriggerInterval: 90,
+      lucidTriggerSoundId: 'lucid_cue',
     );
   }
 
@@ -35,6 +50,11 @@ class AlarmSettings {
     bool? isWakeAlarmEnabled,
     bool? isBedtimeReminderEnabled,
     String? wakeSoundId,
+    bool? isSmartWakeEnabled,
+    int? smartWakeWindow,
+    bool? isLucidTriggerEnabled,
+    int? lucidTriggerInterval,
+    String? lucidTriggerSoundId,
   }) {
     return AlarmSettings(
       bedtime: bedtime ?? this.bedtime,
@@ -43,6 +63,11 @@ class AlarmSettings {
       isWakeAlarmEnabled: isWakeAlarmEnabled ?? this.isWakeAlarmEnabled,
       isBedtimeReminderEnabled: isBedtimeReminderEnabled ?? this.isBedtimeReminderEnabled,
       wakeSoundId: wakeSoundId ?? this.wakeSoundId,
+      isSmartWakeEnabled: isSmartWakeEnabled ?? this.isSmartWakeEnabled,
+      smartWakeWindow: smartWakeWindow ?? this.smartWakeWindow,
+      isLucidTriggerEnabled: isLucidTriggerEnabled ?? this.isLucidTriggerEnabled,
+      lucidTriggerInterval: lucidTriggerInterval ?? this.lucidTriggerInterval,
+      lucidTriggerSoundId: lucidTriggerSoundId ?? this.lucidTriggerSoundId,
     );
   }
 

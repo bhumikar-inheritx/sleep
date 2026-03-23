@@ -5,6 +5,7 @@ import '../../config/colors.dart';
 import '../../config/routes.dart';
 import '../../models/sleep_story.dart';
 import '../../models/sleep_track.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/content_provider.dart';
 import '../../screens/player/music_player_screen.dart';
 import '../../screens/player/story_player_screen.dart';
@@ -65,14 +66,19 @@ class ExploreScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Row(
           children: [
-            const Icon(Icons.search, color: SleepColors.textSecondary), // Brightened from textMuted
+            const Icon(
+              Icons.search,
+              color: SleepColors.textSecondary,
+            ), // Brightened from textMuted
             const SizedBox(width: 12),
             Expanded(
               child: TextField(
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   hintText: 'Search stories, sounds, music...',
-                  hintStyle: TextStyle(color: SleepColors.textSecondary), // Brightened from textMuted
+                  hintStyle: TextStyle(
+                    color: SleepColors.textSecondary,
+                  ), // Brightened from textMuted
                   border: InputBorder.none,
                 ),
                 onSubmitted: (_) {
@@ -91,6 +97,11 @@ class ExploreScreen extends StatelessWidget {
   Widget _buildCategories(BuildContext context) {
     final categories = [
       {'title': 'Stories', 'icon': Icons.menu_book, 'route': AppRoutes.stories},
+      {
+        'title': 'Meditate',
+        'icon': Icons.self_improvement,
+        'route': AppRoutes.meditations,
+      },
       {
         'title': 'Sounds',
         'icon': Icons.water_drop,
@@ -115,12 +126,17 @@ class ExploreScreen extends StatelessWidget {
             minWidth: MediaQuery.of(context).size.width - 48,
           ),
           child: Row(
+            spacing: 20,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: categories.map((cat) {
               return GestureDetector(
-                onTap: () => Navigator.pushNamed(context, cat['route'] as String),
+                onTap: () =>
+                    Navigator.pushNamed(context, cat['route'] as String),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: SleepColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(24),
@@ -193,6 +209,7 @@ class ExploreScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = items[index];
               return _ContentCard(
+                id: item.id,
                 title: item.title,
                 subtitle: item is! SleepStory
                     ? (item as SleepTrack).artist
@@ -325,12 +342,14 @@ class ExploreScreen extends StatelessWidget {
 }
 
 class _ContentCard extends StatelessWidget {
+  final String id;
   final String title;
   final String subtitle;
   final String imagePath;
   final VoidCallback onTap;
 
   const _ContentCard({
+    required this.id,
     required this.title,
     required this.subtitle,
     required this.imagePath,
@@ -370,6 +389,33 @@ class _ContentCard extends StatelessWidget {
                 child: Container(color: Colors.black.withValues(alpha: 0.3)),
               ),
               Positioned(
+                top: 8,
+                right: 8,
+                child: Consumer<AuthProvider>(
+                  builder: (context, auth, _) {
+                    final isFavorite =
+                        auth.profile?.favorites.contains(id) ?? false;
+                    return GestureDetector(
+                      onTap: () => auth.toggleFavorite(id),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          size: 16,
+                          color: isFavorite
+                              ? Colors.redAccent
+                              : Colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Positioned(
                 bottom: 12,
                 left: 12,
                 right: 12,
@@ -400,7 +446,8 @@ class _ContentCard extends StatelessWidget {
                           child: Text(
                             subtitle,
                             style: const TextStyle(
-                              color: SleepColors.textSecondary, // Brightened from textMuted
+                              color: SleepColors
+                                  .textSecondary, // Brightened from textMuted
                               fontSize: 12,
                             ),
                             maxLines: 1,

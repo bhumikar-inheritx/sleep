@@ -302,8 +302,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      const SizedBox(height: 24),
+                      // const SizedBox(height: 32),
+                      // const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

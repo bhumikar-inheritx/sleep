@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:audio_session/audio_session.dart';
 
-enum AudioContentType { story, music }
+enum AudioContentType { story, music, meditation }
 
 /// Core provider for playback of Sleep Stories and Sleep Music.
 class AudioPlayerProvider extends ChangeNotifier {
@@ -20,6 +21,10 @@ class AudioPlayerProvider extends ChangeNotifier {
   String? _currentImageUrl;
   AudioContentType? _currentType;
 
+  // Sleep Timer
+  Timer? _sleepTimer;
+  DateTime? _sleepTimerEndTime;
+
   // Getters
   bool get isPlaying => _isPlaying;
   bool get isLoading => _isLoading;
@@ -31,6 +36,13 @@ class AudioPlayerProvider extends ChangeNotifier {
   String? get currentImageUrl => _currentImageUrl;
   AudioContentType? get currentType => _currentType;
   bool get hasAudio => _currentTitle != null;
+
+  bool get isSleepTimerActive => _sleepTimer != null;
+  Duration? get sleepTimerRemaining {
+    if (_sleepTimerEndTime == null) return null;
+    final remaining = _sleepTimerEndTime!.difference(DateTime.now());
+    return remaining.isNegative ? Duration.zero : remaining;
+  }
 
   AudioPlayerProvider() {
     _player = AudioPlayer();
@@ -148,6 +160,26 @@ class AudioPlayerProvider extends ChangeNotifier {
     await _player.stop();
     _currentTitle = null;
     _position = Duration.zero;
+    notifyListeners();
+  }
+
+  // Sleep Timer Methods
+  void setSleepTimer(Duration duration) {
+    cancelSleepTimer();
+    if (duration == Duration.zero) return;
+    
+    _sleepTimerEndTime = DateTime.now().add(duration);
+    _sleepTimer = Timer(duration, () {
+      pause();
+      cancelSleepTimer();
+    });
+    notifyListeners();
+  }
+
+  void cancelSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+    _sleepTimerEndTime = null;
     notifyListeners();
   }
 

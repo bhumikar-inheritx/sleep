@@ -4,6 +4,7 @@ import '../../config/colors.dart';
 import '../../config/constants.dart';
 import '../../models/sleep_story.dart';
 import '../../providers/audio_player_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/common/glass_card.dart';
 
 class StoryPlayerScreen extends StatefulWidget {
@@ -31,7 +32,11 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
     // Start playback when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final audioProvider = Provider.of<AudioPlayerProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
+      // Track in history
+      authProvider.addToRecentlyPlayed(widget.story.id);
+
       // Only load and play if it's a different story than what's currently loaded
       if (audioProvider.currentId != widget.story.id) {
         audioProvider.loadAndPlay(
@@ -54,9 +59,69 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
   }
 
   String _formatDuration(Duration d) {
+    if (d.isNegative) d = Duration.zero;
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '${d.inHours > 0 ? '${d.inHours}:' : ''}$minutes:$seconds';
+  }
+
+  void _showTimerSheet(BuildContext context, AudioPlayerProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: SleepColors.surfaceGlass,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        final options = [
+          {'label': '15 Minutes', 'duration': const Duration(minutes: 15)},
+          {'label': '30 Minutes', 'duration': const Duration(minutes: 30)},
+          {'label': '45 Minutes', 'duration': const Duration(minutes: 45)},
+          {'label': '1 Hour', 'duration': const Duration(hours: 1)},
+          {'label': 'End of Chapter', 'duration': provider.duration - provider.position},
+        ];
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Text(
+                  'Sleep Timer',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (provider.isSleepTimerActive)
+                ListTile(
+                  title: const Text('Turn Off Timer', style: TextStyle(color: Colors.redAccent)),
+                  leading: const Icon(Icons.timer_off_outlined, color: Colors.redAccent),
+                  onTap: () {
+                    provider.cancelSleepTimer();
+                    Navigator.pop(context);
+                  },
+                ),
+              ...options.map((opt) => ListTile(
+                title: Text(opt['label'] as String, style: const TextStyle(color: Colors.white)),
+                leading: const Icon(Icons.timer_outlined, color: SleepColors.textSecondary),
+                onTap: () {
+                  final dur = opt['duration'] as Duration;
+                  if (dur.inSeconds > 0) {
+                    provider.setSleepTimer(dur);
+                  }
+                  Navigator.pop(context);
+                },
+              )),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -241,8 +306,14 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
                         style: const TextStyle(color: SleepColors.textMuted, fontSize: 12),
                       ),
                       Text(
-                        _formatDuration(audioProvider.duration),
-                        style: const TextStyle(color: SleepColors.textMuted, fontSize: 12),
+                        audioProvider.isSleepTimerActive 
+                          ? '${_formatDuration(audioProvider.sleepTimerRemaining ?? Duration.zero)} (Timer)' 
+                          : _formatDuration(audioProvider.duration),
+                        style: TextStyle(
+                          color: audioProvider.isSleepTimerActive ? SleepColors.primaryLight : SleepColors.textMuted, 
+                          fontSize: 12,
+                          fontWeight: audioProvider.isSleepTimerActive ? FontWeight.w600 : FontWeight.w400,
+                        ),
                       ),
                     ],
                   ),
@@ -255,9 +326,12 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.timer_outlined, color: SleepColors.textSecondary),
-                      onPressed: () {}, // Timer setter
-                    ),
+                        icon: Icon(
+                          audioProvider.isSleepTimerActive ? Icons.timer : Icons.timer_outlined,
+                          color: audioProvider.isSleepTimerActive ? SleepColors.primaryLight : SleepColors.textSecondary,
+                        ),
+                        onPressed: () => _showTimerSheet(context, audioProvider),
+                      ),
                     IconButton(
                       icon: const Icon(Icons.replay_10, color: Colors.white, size: 32),
                       onPressed: () {
@@ -301,9 +375,19 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen> {
                          audioProvider.seek(audioProvider.position + const Duration(seconds: 10));
                       },
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.favorite_border, color: SleepColors.textSecondary),
-                      onPressed: () {}, // Favorite toggle
+                    Consumer<AuthProvider>(
+                      builder: (context, auth, _) {
+                        final isFavorite = auth.profile?.favorites.contains(widget.story.id) ?? false;
+                        return IconButton(
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite
+                                ? Colors.redAccent
+                                : SleepColors.textSecondary,
+                          ),
+                          onPressed: () => auth.toggleFavorite(widget.story.id),
+                        );
+                      },
                     ),
                   ],
                 ),

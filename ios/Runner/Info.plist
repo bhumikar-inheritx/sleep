@@ -50,7 +50,13 @@
 	<key>GIDClientID</key>
 	<string>775759679374-2l5bupk08greqvmmbpe8ih799gh3l5lc.apps.googleusercontent.com</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app requires microphone access for audio playback and recording features within the sleep and meditation loops.</string>
+	<string>This app requires microphone access for voice journaling and sleep patterns tracking.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app requires speech recognition access specifically for its voice journaling feature.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>We need access to your health data to sync your sleep cycles with HealthKit.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>We need permission to save your sleep logs to HealthKit for a complete overview.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
