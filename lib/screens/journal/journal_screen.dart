@@ -1,6 +1,7 @@
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../../config/colors.dart';
 import '../../widgets/common/app_background.dart';
@@ -21,13 +22,13 @@ class _JournalScreenState extends State<JournalScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
-        appBar: const SleepAppBar(
-          title: 'Sleep Journal',
-          transparent: true,
-        ),
+        appBar: const SleepAppBar(title: 'Sleep Journal', transparent: true),
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0).copyWith(bottom: 100),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ).copyWith(bottom: 100),
             physics: const BouncingScrollPhysics(),
             children: [
               _buildHeader(),
@@ -138,7 +139,8 @@ class _JournalScreenState extends State<JournalScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: SleepColors.surfaceLight, // Keep default slightly darker or use surface
+      backgroundColor: SleepColors
+          .surfaceLight, // Keep default slightly darker or use surface
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -160,7 +162,7 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
   int _selectedMood = -1;
   double _sleepQuality = 5.0;
   final TextEditingController _notesController = TextEditingController();
-  
+
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
   String _lastWords = '';
@@ -181,33 +183,147 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
   }
 
   void _listen() async {
+    debugPrint('Mic tapped, _isListening: $_isListening');
     if (!_isListening) {
-      final status = await Permission.microphone.request();
-      if (status != PermissionStatus.granted) return;
-
-      bool available = await _speech.initialize(
-        onStatus: (val) {
-          if (val == 'done' || val == 'notListening') {
-            setState(() => _isListening = false);
-          }
-        },
-        onError: (val) => setState(() => _isListening = false),
-      );
-      
-      if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (val) => setState(() {
-            _lastWords = val.recognizedWords;
-            if (val.hasConfidenceRating && val.confidence > 0) {
-              _notesController.text = val.recognizedWords;
-            }
-          }),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Requesting permissions...'), duration: Duration(seconds: 1)),
         );
       }
+
+      try {
+        // Request microphone permission explicitly
+        PermissionStatus micStatus = await Permission.microphone.request();
+        debugPrint('Microphone status: $micStatus');
+
+        if (micStatus != PermissionStatus.granted) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  micStatus == PermissionStatus.permanentlyDenied 
+                    ? 'Microphone permission is permanently denied.' 
+                    : 'Microphone permission denied.',
+                ),
+                backgroundColor: Colors.redAccent,
+                action: micStatus == PermissionStatus.permanentlyDenied ? SnackBarAction(
+                  label: 'Settings',
+                  textColor: Colors.white,
+                  onPressed: () => openAppSettings(),
+                ) : null,
+              ),
+            );
+          }
+          return;
+        }
+
+        // We will skip the explicit Permission.speech check here because it's reporting permanentlyDenied
+        // and instead let _speech.initialize() handle it or report its own available status.
+        debugPrint('Skipping explicit speech permission check, proceeding to initialization...');
+      } catch (e) {
+        debugPrint('Error during permission/session setup: $e');
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Configuring audio session...'), duration: Duration(seconds: 1)),
+        );
+      }
+
+      // Configure audio session for speech recognition
+      try {
+        final session = await AudioSession.instance;
+        await session.configure(
+          AudioSessionConfiguration(
+            avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+            avAudioSessionCategoryOptions:
+                AVAudioSessionCategoryOptions.allowBluetooth |
+                AVAudioSessionCategoryOptions.defaultToSpeaker,
+            avAudioSessionMode: AVAudioSessionMode.measurement,
+            avAudioSessionRouteSharingPolicy:
+                AVAudioSessionRouteSharingPolicy.defaultPolicy,
+          ),
+        );
+        debugPrint('Audio session configured');
+      } catch (e) {
+        debugPrint("Error configuring audio session: $e");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Audio Session Error: $e'), backgroundColor: Colors.redAccent),
+          );
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Initializing speech engine...'), duration: Duration(seconds: 1)),
+        );
+      }
+
+      try {
+        bool available = await _speech.initialize(
+          onStatus: (val) {
+            debugPrint('Speech Status: $val');
+            if (val == 'done' || val == 'notListening') {
+              if (mounted) setState(() => _isListening = false);
+            }
+          },
+          onError: (val) {
+            debugPrint('Speech Error: ${val.errorMsg}');
+            if (mounted) {
+              setState(() => _isListening = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Speech Error: ${val.errorMsg}'),
+                  backgroundColor: Colors.redAccent,
+                ),
+              );
+            }
+          },
+        );
+
+        debugPrint('Speech available: $available');
+
+        if (available) {
+          if (mounted) setState(() => _isListening = true);
+          _speech.listen(
+            onResult: (val) {
+              if (mounted) {
+                setState(() {
+                  _lastWords = val.recognizedWords;
+                  if (val.hasConfidenceRating && val.confidence > 0) {
+                    _notesController.text = val.recognizedWords;
+                  }
+                });
+              }
+            },
+            listenMode: stt.ListenMode.dictation,
+            cancelOnError: true,
+          );
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Speech recognition is not available on this device.',
+                ),
+                backgroundColor: Colors.orangeAccent,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('Error initializing speech: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Init Error: $e'), backgroundColor: Colors.redAccent),
+          );
+        }
+      }
     } else {
-      setState(() => _isListening = false);
+      if (mounted) setState(() => _isListening = false);
       _speech.stop();
+      debugPrint('Speech stopped manually');
     }
   }
 
@@ -233,7 +349,7 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Mood Selector
               const Text(
                 'How are you feeling this morning?',
@@ -257,28 +373,26 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isSelected 
-                            ? SleepColors.primary.withValues(alpha: 0.2) 
+                        color: isSelected
+                            ? SleepColors.primary.withValues(alpha: 0.2)
                             : Colors.transparent,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isSelected 
-                              ? SleepColors.primaryLight 
+                          color: isSelected
+                              ? SleepColors.primaryLight
                               : Colors.transparent,
                         ),
                       ),
                       child: Text(
                         _moods[index]['emoji'] as String,
-                        style: TextStyle(
-                          fontSize: isSelected ? 32 : 28,
-                        ),
+                        style: TextStyle(fontSize: isSelected ? 32 : 28),
                       ),
                     ),
                   );
                 }),
               ),
               const SizedBox(height: 32),
-              
+
               // Quality Slider
               const Text(
                 'Sleep Quality',
@@ -290,7 +404,13 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Text('Poor', style: TextStyle(color: SleepColors.textMuted, fontSize: 12)),
+                  const Text(
+                    'Poor',
+                    style: TextStyle(
+                      color: SleepColors.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
                   Expanded(
                     child: SliderTheme(
                       data: SliderTheme.of(context).copyWith(
@@ -312,11 +432,17 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
                       ),
                     ),
                   ),
-                  const Text('Excellent', style: TextStyle(color: SleepColors.textMuted, fontSize: 12)),
+                  const Text(
+                    'Excellent',
+                    style: TextStyle(
+                      color: SleepColors.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
-              
+
               // Notes
               const Text(
                 'Notes (Optional)',
@@ -331,12 +457,15 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
                 maxLines: 3,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Did you wake up during the night? Have any dreams?',
+                  hintText:
+                      'Did you wake up during the night? Have any dreams?',
                   hintStyle: const TextStyle(color: SleepColors.textMuted),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isListening ? Icons.mic : Icons.mic_none,
-                      color: _isListening ? Colors.redAccent : SleepColors.primaryLight,
+                      color: _isListening
+                          ? Colors.redAccent
+                          : SleepColors.primaryLight,
                     ),
                     onPressed: _listen,
                   ),
@@ -349,7 +478,7 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Save Button
               SizedBox(
                 width: double.infinity,
@@ -363,19 +492,20 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
                     ),
                     elevation: 0,
                   ),
-                  onPressed: _selectedMood == -1 ? null : () {
-                    // Save logic would go here
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Sleep logged successfully!')),
-                    );
-                  },
+                  onPressed: _selectedMood == -1
+                      ? null
+                      : () {
+                          // Save logic would go here
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Sleep logged successfully!'),
+                            ),
+                          );
+                        },
                   child: const Text(
                     'Save Entry',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

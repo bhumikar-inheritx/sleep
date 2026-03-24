@@ -11,9 +11,11 @@ class NotificationsService {
     tz.initializeTimeZones();
     String timeZoneName = (await FlutterTimezone.getLocalTimezone()).toString();
     
-    // Some versions/platforms return a complex string like "TimezoneInfo(Asia/Calcutta, ...)"
-    // We need just the ID (e.g., "Asia/Calcutta")
-    if (timeZoneName.contains('(') && timeZoneName.contains(')')) {
+    // Handle various format quirks from flutter_timezone (e.g., "TimezoneInfo(Asia/Calcutta, ...)")
+    if (timeZoneName.startsWith('TimezoneInfo')) {
+      final match = RegExp(r'[A-Z][a-z]+/[A-Za-z_]+').firstMatch(timeZoneName);
+      timeZoneName = match?.group(0) ?? 'UTC';
+    } else if (timeZoneName.contains('(') && timeZoneName.contains(')')) {
       timeZoneName = timeZoneName.split('(')[1].split(',')[0].trim();
     }
     

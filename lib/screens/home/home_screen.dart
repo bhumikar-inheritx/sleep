@@ -152,6 +152,7 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildGreeting(context, locale),
+                const SizedBox(height: 24),
                 _buildPremiumBanner(context),
                 const SizedBox(height: 24),
                 _buildTonightRecommendation(context),

@@ -93,6 +93,15 @@ class DreamDriftApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: SleepTheme.darkTheme,
           locale: localeProvider.locale,
+          builder: (context, child) {
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: child,
+            );
+          },
           initialRoute: AppRoutes.splash,
           routes: {
             AppRoutes.splash: (context) => const SplashScreen(),
