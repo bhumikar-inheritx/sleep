@@ -2,64 +2,65 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../domain/repositories/sleep_repository.dart';
 import '../models/sleep_log.dart';
-import '../services/storage_service.dart';
 
 class SleepTrackerProvider extends ChangeNotifier {
-  static const String _storageKey = 'sleep_logs';
+  final SleepRepository _repository;
+  final String? userId;
   List<SleepLog> _logs = [];
+  bool _isDisposed = false;
 
   List<SleepLog> get logs => List.unmodifiable(_logs);
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
 
-  SleepTrackerProvider() {
-    _loadLogs();
+  SleepTrackerProvider(this._repository, this.userId) {
+    if (userId != null) {
+      _loadLogs();
+    }
   }
 
   Future<void> _loadLogs() async {
+    if (userId == null) return;
     _isLoading = true;
     notifyListeners();
 
     try {
-      final logStrings = StorageService.getStringList(_storageKey);
-      _logs = logStrings
-          .map(
-            (str) => SleepLog.fromJson(jsonDecode(str) as Map<String, dynamic>),
-          )
-          .toList();
-
-      // Sort by bedtime descending (newest first)
+      _logs = await _repository.getLogs(userId!);
       _logs.sort((a, b) => b.bedtime.compareTo(a.bedtime));
     } catch (e) {
       debugPrint('Error loading sleep logs: $e');
-      _logs = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
     }
   }
 
   Future<void> _saveLogs() async {
-    try {
-      final logStrings = _logs.map((log) => jsonEncode(log.toJson())).toList();
-      await StorageService.setStringList(_storageKey, logStrings);
-    } catch (e) {
-      debugPrint('Error saving sleep logs: $e');
-    }
+    // Repository handles individual saves
   }
 
   Future<void> addLog(SleepLog log) async {
-    // Add logic to avoid duplicate exact IDs
     _logs.removeWhere((l) => l.id == log.id);
-
     _logs.add(log);
-    // Sort descending
     _logs.sort((a, b) => b.bedtime.compareTo(a.bedtime));
-
     notifyListeners();
-    await _saveLogs();
+    await _repository.saveLog(log);
   }
 
   Future<void> deleteLog(String id) async {

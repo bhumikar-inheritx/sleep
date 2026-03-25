@@ -3,10 +3,12 @@ import 'dart:math' as math;
 
 class AppBackground extends StatefulWidget {
   final Widget child;
+  final String? backgroundImage;
 
   const AppBackground({
     super.key,
     required this.child,
+    this.backgroundImage,
   });
 
   @override
@@ -52,7 +54,7 @@ class _AppBackgroundState extends State<AppBackground> with SingleTickerProvider
         // Background Image
         Positioned.fill(
           child: Image.asset(
-            'assets/images/background_gradient.jpg',
+            widget.backgroundImage ?? 'assets/images/background_gradient.jpg',
             fit: BoxFit.cover,
           ),
         ),

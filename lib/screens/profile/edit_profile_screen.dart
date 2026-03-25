@@ -36,7 +36,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _handleSave() {
     if (_formKey.currentState!.validate()) {
-      // In a real app we'd update this in Firebase/AuthProvider
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      if (auth.profile != null) {
+        auth.updateProfile(auth.profile!.copyWith(name: _nameController.text));
+      }
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Profile updated successfully'),

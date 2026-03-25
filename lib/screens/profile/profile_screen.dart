@@ -9,6 +9,8 @@ import '../../providers/locale_provider.dart';
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
+import '../../providers/sleep_tracker_provider.dart';
+import '../../providers/journal_provider.dart';
 
 import 'edit_profile_screen.dart';
 import 'notification_settings_screen.dart';
@@ -107,9 +109,11 @@ class ProfileScreen extends StatelessWidget {
                   _SettingsItem(
                     icon: Icons.timer_outlined,
                     title: 'Default Sleep Timer',
-                    trailing: const Text(
-                      '30 min',
-                      style: TextStyle(color: SleepColors.textMuted),
+                    trailing: Consumer<AuthProvider>(
+                      builder: (context, auth, _) => Text(
+                        '${auth.profile?.defaultSleepTimer.inMinutes ?? 30} min',
+                        style: const TextStyle(color: SleepColors.textMuted),
+                      ),
                     ),
                     onTap: () {
                       ProfileBottomSheets.showTimerSelectionSheet(context);
@@ -118,9 +122,11 @@ class ProfileScreen extends StatelessWidget {
                   _SettingsItem(
                     icon: Icons.volume_down_outlined,
                     title: 'Fade Out Duration',
-                    trailing: const Text(
-                      '5 min',
-                      style: TextStyle(color: SleepColors.textMuted),
+                    trailing: Consumer<AuthProvider>(
+                      builder: (context, auth, _) => Text(
+                        '${auth.profile?.fadeOutDuration.inMinutes ?? 5} min',
+                        style: const TextStyle(color: SleepColors.textMuted),
+                      ),
                     ),
                     onTap: () {
                       ProfileBottomSheets.showFadeOutSheet(context);
@@ -353,42 +359,50 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           height: 100,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            children: [
-              _BadgeIcon(
-                icon: Icons.auto_awesome,
-                label: 'Early Bird',
-                isUnlocked: true,
-                color: Colors.amber,
-              ),
-              _BadgeIcon(
-                icon: Icons.nightlight_round,
-                label: 'Night Owl',
-                isUnlocked: true,
-                color: Colors.purpleAccent,
-              ),
-              _BadgeIcon(
-                icon: Icons.timer,
-                label: '7 Day Streak',
-                isUnlocked: false,
-                color: Colors.orangeAccent,
-              ),
-              _BadgeIcon(
-                icon: Icons.favorite,
-                label: 'Content Lover',
-                isUnlocked: true,
-                color: Colors.redAccent,
-              ),
-              _BadgeIcon(
-                icon: Icons.self_improvement,
-                label: 'Zen Master',
-                isUnlocked: false,
-                color: Colors.tealAccent,
-              ),
-            ],
+          child: Consumer3<AuthProvider, SleepTrackerProvider, JournalProvider>(
+            builder: (context, auth, sleep, journal, _) {
+              final streak = auth.profile?.streakDays ?? 0;
+              final logsCount = sleep.logs.length;
+              final entriesCount = journal.entries.length;
+
+              return ListView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                children: [
+                  _BadgeIcon(
+                    icon: Icons.auto_awesome,
+                    label: 'Early Bird',
+                    isUnlocked: true, // Mocked for now or based on some wake time
+                    color: Colors.amber,
+                  ),
+                  _BadgeIcon(
+                    icon: Icons.nightlight_round,
+                    label: 'Night Owl',
+                    isUnlocked: true,
+                    color: Colors.purpleAccent,
+                  ),
+                  _BadgeIcon(
+                    icon: Icons.timer,
+                    label: '7 Day Streak',
+                    isUnlocked: streak >= 7,
+                    color: Colors.orangeAccent,
+                  ),
+                  _BadgeIcon(
+                    icon: Icons.favorite,
+                    label: 'Sleep Master',
+                    isUnlocked: logsCount >= 10,
+                    color: Colors.redAccent,
+                  ),
+                  _BadgeIcon(
+                    icon: Icons.self_improvement,
+                    label: 'Zen Master',
+                    isUnlocked: entriesCount >= 5,
+                    color: Colors.tealAccent,
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ],

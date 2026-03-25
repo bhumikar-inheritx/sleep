@@ -5,22 +5,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/routine.dart';
-import '../models/user_profile.dart';
+import '../domain/entities/user_entity.dart';
+import '../domain/repositories/user_repository.dart';
 import '../services/auth_service.dart';
 import '../services/storage_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
+  final UserRepository _userRepository;
   static const String _profileKey = 'user_profile';
 
   bool _isLoading = false;
   String? _error;
   StreamSubscription<User?>? _authSub;
-  UserProfile? _profile;
+  UserEntity? _profile;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
-  UserProfile? get profile => _profile;
+  UserEntity? get profile => _profile;
 
   /// True when a Firebase user is currently signed in.
   bool get isAuthenticated => _authService.currentUser != null;
@@ -34,31 +36,36 @@ class AuthProvider with ChangeNotifier {
   /// The raw Firebase [User] object.
   User? get currentUser => _authService.currentUser;
 
-  AuthProvider() {
+  AuthProvider(this._userRepository) {
     _loadProfile();
     // Listen for auth state changes so the UI rebuilds reactively.
-    _authSub = _authService.authStateChanges.listen((_) {
-      _loadProfile();
-      notifyListeners();
+    _authSub = _authService.authStateChanges.listen((user) {
+      if (user != null) {
+        _loadRemoteProfile(user.uid);
+      } else {
+        _profile = null;
+        notifyListeners();
+      }
     });
   }
 
-  void _loadProfile() {
-    final profileJson = StorageService.getString(_profileKey);
-    if (profileJson != null) {
-      try {
-        _profile = UserProfile.fromJson(jsonDecode(profileJson));
-        _checkStreak();
-        _ensureDefaultRoutine();
-      } catch (e) {
-        _profile = UserProfile(name: userName ?? 'Dreamer');
-        _checkStreak();
-        _ensureDefaultRoutine();
-      }
-    } else {
-      _profile = UserProfile(name: userName ?? 'Dreamer');
+  Future<void> _loadRemoteProfile(String uid) async {
+    final remoteProfile = await _userRepository.getUserProfile(uid);
+    if (remoteProfile != null) {
+      _profile = remoteProfile;
       _checkStreak();
       _ensureDefaultRoutine();
+      notifyListeners();
+    } else {
+      _profile = UserEntity(uid: uid, name: userName ?? 'Dreamer', email: userEmail);
+      await updateProfile(_profile!);
+    }
+  }
+
+  void _loadProfile() {
+    final uid = currentUser?.uid;
+    if (uid != null) {
+      _loadRemoteProfile(uid);
     }
   }
 
@@ -131,13 +138,12 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateProfile(UserProfile newProfile) async {
+  Future<void> updateProfile(UserEntity newProfile) async {
     _profile = newProfile;
-    await StorageService.setString(
-      _profileKey,
-      jsonEncode(newProfile.toJson()),
-    );
     notifyListeners();
+    if (newProfile.uid != null) {
+      await _userRepository.saveUserProfile(newProfile);
+    }
   }
 
   Future<void> toggleFavorite(String contentId) async {

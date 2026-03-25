@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../../config/colors.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/common/glass_card.dart';
 
 class ProfileBottomSheets {
@@ -14,32 +15,48 @@ class ProfileBottomSheets {
   }
 
   static Future<void> showTimerSelectionSheet(BuildContext context) async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final currentMinutes = auth.profile?.defaultSleepTimer.inMinutes ?? 30;
+    
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => _SelectionSheet(
         title: 'Default Sleep Timer',
-        options: const ['15 minutes', '30 minutes', '45 minutes', '60 minutes', 'Custom'],
-        currentSelection: '30 minutes',
+        options: const ['15 minutes', '30 minutes', '45 minutes', '60 minutes'],
+        currentSelection: '$currentMinutes minutes',
         onSelected: (val) {
-          // Typically we'd save this to a provider or SharedPreferences
+          final mins = int.parse(val.split(' ')[0]);
+          if (auth.profile != null) {
+            auth.updateProfile(auth.profile!.copyWith(
+              defaultSleepTimer: Duration(minutes: mins),
+            ));
+          }
         },
       ),
     );
   }
 
   static Future<void> showFadeOutSheet(BuildContext context) async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final currentMinutes = auth.profile?.fadeOutDuration.inMinutes ?? 5;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => _SelectionSheet(
         title: 'Fade Out Duration',
-        options: const ['None', '1 minute', '5 minutes', '10 minutes'],
-        currentSelection: '5 minutes',
+        options: const ['0 minutes', '1 minute', '5 minutes', '10 minutes'],
+        currentSelection: currentMinutes == 0 ? '0 minutes' : (currentMinutes == 1 ? '1 minute' : '$currentMinutes minutes'),
         onSelected: (val) {
-          // Normally saved to settings
+          final mins = int.parse(val.split(' ')[0]);
+          if (auth.profile != null) {
+            auth.updateProfile(auth.profile!.copyWith(
+              fadeOutDuration: Duration(minutes: mins),
+            ));
+          }
         },
       ),
     );
@@ -129,7 +146,7 @@ class _ExportDataSheetState extends State<_ExportDataSheet> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Your sleep data has been successfully exported to your device downloads.',
+              'Your sleep journey has been compiled and is ready for download.',
               style: TextStyle(
                 color: SleepColors.textSecondary,
                 fontSize: 14,

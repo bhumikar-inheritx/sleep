@@ -1,9 +1,12 @@
-import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../config/colors.dart';
+import '../../providers/journal_provider.dart';
+import '../../domain/entities/journal_entry.dart';
 import '../../widgets/common/app_background.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
@@ -44,7 +47,17 @@ class _JournalScreenState extends State<JournalScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              _buildEmptyState(),
+              Consumer<JournalProvider>(
+                builder: (context, journal, _) {
+                  if (journal.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (journal.entries.isEmpty) {
+                    return _buildEmptyState();
+                  }
+                  return _buildEntriesList(journal.entries);
+                },
+              ),
             ],
           ),
         ),
@@ -133,6 +146,77 @@ class _JournalScreenState extends State<JournalScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildEntriesList(List<JournalEntry> entries) {
+    return Column(
+      children: entries.map((entry) => _buildEntryItem(entry)).toList(),
+    );
+  }
+
+  Widget _buildEntryItem(JournalEntry entry) {
+    final dateStr = DateFormat('MMM dd, yyyy').format(entry.date);
+    final moodEmoji = _getEmojiForMood(entry.moodIndex);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: GlassCard(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    dateStr,
+                    style: const TextStyle(
+                      color: SleepColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    moodEmoji,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (entry.notes.isNotEmpty)
+                Text(
+                  entry.notes,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 14),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Quality: ${entry.sleepQuality.toInt()}/10',
+                    style: const TextStyle(
+                      color: SleepColors.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getEmojiForMood(int index) {
+    const moods = ['😭', '😢', '😐', '🙂', '🤩'];
+    if (index >= 0 && index < moods.length) return moods[index];
+    return '😐';
   }
 
   void _showLogEntrySheet(BuildContext context) {
@@ -494,14 +578,22 @@ class _LogEntrySheetState extends State<_LogEntrySheet> {
                   ),
                   onPressed: _selectedMood == -1
                       ? null
-                      : () {
-                          // Save logic would go here
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Sleep logged successfully!'),
-                            ),
+                      : () async {
+                          final journal = Provider.of<JournalProvider>(context, listen: false);
+                          await journal.addEntry(
+                            moodIndex: _selectedMood,
+                            sleepQuality: _sleepQuality,
+                            notes: _notesController.text,
                           );
+                          
+                          if (mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Sleep logged successfully!'),
+                              ),
+                            );
+                          }
                         },
                   child: const Text(
                     'Save Entry',

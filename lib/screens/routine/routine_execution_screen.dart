@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/colors.dart';
 import '../../models/routine.dart';
 import '../../providers/routine_provider.dart';
+import '../../widgets/common/app_background.dart';
 import '../../widgets/common/glass_card.dart';
 
 class RoutineExecutionScreen extends StatefulWidget {
@@ -57,28 +58,31 @@ class _RoutineExecutionScreenState extends State<RoutineExecutionScreen>
         if (step == null)
           return const Scaffold(backgroundColor: SleepColors.background);
 
-        return Scaffold(
-          backgroundColor: SleepColors.background,
-          body: Stack(
-            children: [
-              _buildAnimatedBackground(),
-              SafeArea(
-                child: Column(
-                  children: [
-                    _buildHeader(context, routine),
-                    const Spacer(),
-                    _buildStepContent(step),
-                    const SizedBox(height: 48),
-                    _buildTimer(routine),
-                    const Spacer(),
-                    _buildProgressIndicator(routine),
-                    const SizedBox(height: 32),
-                    _buildControls(routine),
-                    const SizedBox(height: 48),
-                  ],
+        return AppBackground(
+          backgroundImage: 'assets/images/start_ritual_background.png',
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Stack(
+              children: [
+                _buildAnimatedBackground(),
+                SafeArea(
+                  child: Column(
+                    children: [
+                      _buildHeader(context, routine),
+                      const Spacer(),
+                      _buildStepContent(step),
+                      const SizedBox(height: 48),
+                      _buildTimer(routine),
+                      const Spacer(),
+                      _buildProgressIndicator(routine),
+                      const SizedBox(height: 32),
+                      _buildControls(routine),
+                      const SizedBox(height: 48),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -287,64 +291,67 @@ class _RoutineExecutionScreenState extends State<RoutineExecutionScreen>
   }
 
   Widget _buildCompletionScreen(BuildContext context, RoutineProvider routine) {
-    return Container(
-      width: double.infinity,
-      color: SleepColors.background,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TweenAnimationBuilder(
-            duration: const Duration(seconds: 1),
-            tween: Tween<double>(begin: 0, end: 1),
-            builder: (context, double value, child) {
-              return Transform.scale(
-                scale: value,
-                child: const Icon(
-                  Icons.check_circle_outline_rounded,
-                  color: SleepColors.primaryLight,
-                  size: 120,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 40),
-          const Text(
-            'Ritual Completed',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'You are now ready for a deep and\nrestful sleep. Good night!',
-            style: TextStyle(color: SleepColors.textSecondary, fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 64),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: GlassCard(
-              onTap: () {
-                routine.stopRoutine();
-                Navigator.pop(context);
+    return AppBackground(
+      backgroundImage: 'assets/images/start_ritual_background.png',
+      child: Container(
+        width: double.infinity,
+        color: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder(
+              duration: const Duration(seconds: 1),
+              tween: Tween<double>(begin: 0, end: 1),
+              builder: (context, double value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: const Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: SleepColors.primaryLight,
+                    size: 120,
+                  ),
+                );
               },
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: const Center(
-                child: Text(
-                  'FINISH',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
+            ),
+            const SizedBox(height: 40),
+            const Text(
+              'Ritual Completed',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'You are now ready for a deep and\nrestful sleep. Good night!',
+              style: TextStyle(color: SleepColors.textSecondary, fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 64),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: GlassCard(
+                onTap: () {
+                  routine.stopRoutine();
+                  Navigator.pop(context);
+                },
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: const Center(
+                  child: Text(
+                    'FINISH',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

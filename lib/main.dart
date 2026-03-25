@@ -32,16 +32,43 @@ import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/auth/forgot_password_screen.dart';
 import 'screens/routines/breathing_exercise_screen.dart';
 import 'screens/splash/splash_screen.dart';
+import 'domain/repositories/user_repository.dart';
+import 'domain/repositories/journal_repository.dart';
+import 'domain/repositories/sleep_repository.dart';
+import 'data/datasources/local/hive_datasource.dart';
+import 'data/datasources/remote/firestore_datasource.dart';
+import 'data/repositories/user_repository_impl.dart';
+import 'data/repositories/journal_repository_impl.dart';
+import 'data/repositories/sleep_repository_impl.dart';
+import 'providers/journal_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize services
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  // Initialize Storage
   await StorageService.init();
+  await HiveDatasource.init();
   await NotificationsService.init();
+
+  // Initialize Data Layer
+  final firestoreDS = FirestoreDatasource();
+  final hiveDS = HiveDatasource();
+  
+  final userRepository = UserRepositoryImpl(
+    remoteDataSource: firestoreDS,
+    localDataSource: hiveDS,
+  );
+  final journalRepository = JournalRepositoryImpl(
+    remoteDataSource: firestoreDS,
+    localDataSource: hiveDS,
+  );
+  final sleepRepository = SleepRepositoryImpl(
+    remoteDataSource: firestoreDS,
+    localDataSource: hiveDS,
+  );
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -56,23 +83,53 @@ void main() async {
     ),
   );
 
-  runApp(const DreamDriftApp());
+  runApp(DreamDriftApp(
+    userRepository: userRepository,
+    journalRepository: journalRepository,
+    sleepRepository: sleepRepository,
+  ));
 }
 
 class DreamDriftApp extends StatelessWidget {
-  const DreamDriftApp({super.key});
+  final UserRepository userRepository;
+  final JournalRepository journalRepository;
+  final SleepRepository sleepRepository;
+
+  const DreamDriftApp({
+    super.key,
+    required this.userRepository,
+    required this.journalRepository,
+    required this.sleepRepository,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider(userRepository)),
         ChangeNotifierProvider(create: (_) => OnboardingProvider()),
         ChangeNotifierProvider(create: (_) => AudioPlayerProvider()),
         ChangeNotifierProvider(create: (_) => ContentProvider()),
         ChangeNotifierProvider(create: (_) => SoundMixerProvider()),
-        ChangeNotifierProvider(
-          create: (_) => SleepTrackerProvider()..addDummyDataIfEmpty(),
+        ChangeNotifierProxyProvider<AuthProvider, SleepTrackerProvider>(
+          create: (context) => SleepTrackerProvider(
+            sleepRepository,
+            Provider.of<AuthProvider>(context, listen: false).currentUser?.uid,
+          ),
+          update: (context, auth, previous) => SleepTrackerProvider(
+            sleepRepository,
+            auth.currentUser?.uid,
+          ),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, JournalProvider>(
+          create: (context) => JournalProvider(
+            journalRepository,
+            Provider.of<AuthProvider>(context, listen: false).currentUser?.uid,
+          ),
+          update: (context, auth, previous) => JournalProvider(
+            journalRepository,
+            auth.currentUser?.uid,
+          ),
         ),
         ChangeNotifierProvider(create: (_) => AlarmProvider()),
         ChangeNotifierProxyProvider2<AuthProvider, ContentProvider, RecommendationProvider>(

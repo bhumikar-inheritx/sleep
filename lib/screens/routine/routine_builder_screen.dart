@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../config/colors.dart';
-import '../../config/constants.dart';
 import '../../models/routine.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/routine_provider.dart';
+import '../../widgets/common/app_background.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
 import 'routine_execution_screen.dart';
@@ -24,7 +25,9 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
   void initState() {
     super.initState();
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    _routine = auth.profile?.windDownRoutine ?? const SleepRoutine(id: 'new', name: 'My Ritual', steps: []);
+    _routine =
+        auth.profile?.windDownRoutine ??
+        const SleepRoutine(id: 'new', name: 'My Ritual', steps: []);
   }
 
   void _saveRoutine() async {
@@ -32,7 +35,10 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
     await auth.updateRoutine(_routine);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Routine saved!'), backgroundColor: SleepColors.primary),
+        const SnackBar(
+          content: Text('Routine saved!'),
+          backgroundColor: SleepColors.primary,
+        ),
       );
       setState(() => _isModified = false);
     }
@@ -40,43 +46,49 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: SleepAppBar(
-        title: 'Wind-Down Ritual',
-        transparent: true,
-        actions: [
-          if (_isModified)
-            TextButton(
-              onPressed: _saveRoutine,
-              child: const Text('Save', style: TextStyle(color: SleepColors.primaryLight)),
-            ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ReorderableListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  for (int index = 0; index < _routine.steps.length; index++)
-                    _buildStepCard(index, _routine.steps[index]),
-                ],
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (oldIndex < newIndex) newIndex -= 1;
-                    final steps = List<RoutineStep>.from(_routine.steps);
-                    final item = steps.removeAt(oldIndex);
-                    steps.insert(newIndex, item);
-                    _routine = _routine.copyWith(steps: steps);
-                    _isModified = true;
-                  });
-                },
+    return AppBackground(
+      backgroundImage: 'assets/images/start_ritual_background.png',
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: SleepAppBar(
+          title: 'Wind-Down Ritual',
+          transparent: true,
+          actions: [
+            if (_isModified)
+              TextButton(
+                onPressed: _saveRoutine,
+                child: const Text(
+                  'Save',
+                  style: TextStyle(color: SleepColors.primaryLight),
+                ),
               ),
-            ),
-            _buildBottomBar(),
           ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ReorderableListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    for (int index = 0; index < _routine.steps.length; index++)
+                      _buildStepCard(index, _routine.steps[index]),
+                  ],
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (oldIndex < newIndex) newIndex -= 1;
+                      final steps = List<RoutineStep>.from(_routine.steps);
+                      final item = steps.removeAt(oldIndex);
+                      steps.insert(newIndex, item);
+                      _routine = _routine.copyWith(steps: steps);
+                      _isModified = true;
+                    });
+                  },
+                ),
+              ),
+              _buildBottomBar(),
+            ],
+          ),
         ),
       ),
     );
@@ -100,17 +112,27 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                 children: [
                   Text(
                     step.title,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     '${step.duration.inMinutes} minutes',
-                    style: const TextStyle(color: SleepColors.textSecondary, fontSize: 12),
+                    style: const TextStyle(
+                      color: SleepColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent, size: 20),
+              icon: const Icon(
+                Icons.remove_circle_outline,
+                color: Colors.redAccent,
+                size: 20,
+              ),
               onPressed: () {
                 setState(() {
                   final steps = List<RoutineStep>.from(_routine.steps);
@@ -160,7 +182,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: SleepColors.background.withValues(alpha: 0.8),
+        color: SleepColors.background.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -175,7 +197,9 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                   label: const Text('Add Step'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                    side: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
@@ -189,16 +213,23 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
               context.read<RoutineProvider>().startRoutine(_routine);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const RoutineExecutionScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const RoutineExecutionScreen(),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: SleepColors.primary,
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
-            child: const Text('Start Ritual', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Start Ritual',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -208,8 +239,10 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
   void _showAddStepSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: SleepColors.surfaceGlass,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      backgroundColor: SleepColors.surfaceLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) {
         return SafeArea(
           child: Column(
@@ -217,7 +250,14 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             children: [
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
-                child: Text('Add Activity', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Add Activity',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               _buildAddOption(RoutineStepType.breathing, 'Breathing Exercise'),
               _buildAddOption(RoutineStepType.journal, 'Journaling'),
@@ -240,12 +280,14 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
         Navigator.pop(context);
         setState(() {
           final steps = List<RoutineStep>.from(_routine.steps);
-          steps.add(RoutineStep(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            type: type,
-            title: label,
-            duration: const Duration(minutes: 5),
-          ));
+          steps.add(
+            RoutineStep(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              type: type,
+              title: label,
+              duration: const Duration(minutes: 5),
+            ),
+          );
           _routine = _routine.copyWith(steps: steps);
           _isModified = true;
         });
