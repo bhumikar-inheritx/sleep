@@ -35,7 +35,6 @@ class LocaleProvider extends ChangeNotifier {
         'good_evening': 'Good Evening',
         'go_premium': 'GO PREMIUM',
         'tonight_recommendation': 'Tonight\'s Recommendation',
-        'nightly_ritual': 'Nightly Ritual',
       },
       'es': {
         'home': 'Inicio',
@@ -46,7 +45,6 @@ class LocaleProvider extends ChangeNotifier {
         'good_evening': 'Buenas Noches',
         'go_premium': 'HACERSE PREMIUM',
         'tonight_recommendation': 'Recomendación de Hoy',
-        'nightly_ritual': 'Ritual Nocturno',
       },
       'hi': {
         'home': 'होम',
@@ -57,7 +55,6 @@ class LocaleProvider extends ChangeNotifier {
         'good_evening': 'शुभ संध्या',
         'go_premium': 'प्रीमियम लें',
         'tonight_recommendation': 'आज की सिफारिश',
-        'nightly_ritual': 'रात्रि अनुष्ठान',
       }
     };
 

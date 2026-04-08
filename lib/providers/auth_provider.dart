@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../models/routine.dart';
 import '../domain/entities/user_entity.dart';
 import '../domain/repositories/user_repository.dart';
 import '../services/auth_service.dart';
@@ -56,7 +55,6 @@ class AuthProvider with ChangeNotifier {
       if (remoteProfile != null) {
         _profile = remoteProfile;
         _checkStreak();
-        _ensureDefaultRoutine();
         notifyListeners();
       } else {
         // Only initialize if we don't have a profile yet
@@ -75,35 +73,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _ensureDefaultRoutine() async {
-    if (_profile == null || _profile!.windDownRoutine != null) return;
 
-    final defaultRoutine = SleepRoutine(
-      id: 'default_routine',
-      name: 'Sleep Ritual',
-      steps: [
-        const RoutineStep(
-          id: 'step_1',
-          type: RoutineStepType.breathing,
-          title: 'Calm Breathing',
-          duration: Duration(minutes: 2),
-        ),
-        const RoutineStep(
-          id: 'step_2',
-          type: RoutineStepType.journal,
-          title: 'Quick Reflect',
-          duration: Duration(minutes: 3),
-        ),
-        const RoutineStep(
-          id: 'step_3',
-          type: RoutineStepType.soundscape,
-          title: 'Night Ambience',
-          duration: Duration(minutes: 10),
-        ),
-      ],
-    );
-    await updateProfile(_profile!.copyWith(windDownRoutine: defaultRoutine));
-  }
 
   Future<void> _checkStreak() async {
     if (_profile == null) return;
@@ -184,10 +154,6 @@ class AuthProvider with ChangeNotifier {
     await updateProfile(_profile!.copyWith(recentlyPlayed: currentHistory));
   }
 
-  Future<void> updateRoutine(SleepRoutine routine) async {
-    if (_profile == null) return;
-    await updateProfile(_profile!.copyWith(windDownRoutine: routine));
-  }
 
   @override
   void dispose() {

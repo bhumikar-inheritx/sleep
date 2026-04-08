@@ -48,7 +48,7 @@ class NotificationsService {
       await androidPlugin.createNotificationChannel(const AndroidNotificationChannel(
         'bedtime_reminders',
         'Bedtime Reminders',
-        description: 'Notifications for your nightly wind-down.',
+        description: 'Notifications for your bedtime reminders.',
         importance: Importance.high,
       ));
     }

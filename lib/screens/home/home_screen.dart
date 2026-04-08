@@ -14,10 +14,9 @@ import '../../providers/premium_provider.dart';
 import '../../providers/recommendation_provider.dart';
 import '../../screens/player/meditation_player_screen.dart';
 import '../../screens/player/music_player_screen.dart';
-import '../../screens/player/story_player_screen.dart';
-import '../../screens/routine/routine_builder_screen.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
+import '../player/story_player_screen.dart';
 import '../premium/paywall_screen.dart';
 
 class _RecommendationCard extends StatelessWidget {
@@ -156,8 +155,6 @@ class HomeScreen extends StatelessWidget {
                 _buildPremiumBanner(context),
                 const SizedBox(height: 24),
                 _buildTonightRecommendation(context),
-                const SizedBox(height: 24),
-                _buildRitualCard(context),
                 const SizedBox(height: 32),
                 _buildQuickActions(context),
                 const SizedBox(height: 32),
@@ -423,70 +420,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRitualCard(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, auth, _) {
-        final routine = auth.profile?.windDownRoutine;
-        if (routine == null) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: GlassCard(
-            padding: const EdgeInsets.all(20),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const RoutineBuilderScreen(),
-                ),
-              );
-            },
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: SleepColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.nightlight_round,
-                    color: SleepColors.primaryLight,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Nightly Ritual',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '${routine.steps.length} steps to better sleep',
-                        style: const TextStyle(
-                          color: SleepColors.textSecondary,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right, color: SleepColors.textMuted),
               ],
             ),
           ),

@@ -265,66 +265,6 @@ class AlarmScreen extends StatelessWidget {
                   activeTrackColor: SleepColors.primary.withOpacity(0.5),
                   activeThumbColor: SleepColors.primary,
                 ),
-                Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
-                SwitchListTile(
-                  title: Row(
-                    children: [
-                      const Icon(
-                        Icons.auto_awesome,
-                        color: SleepColors.textSecondary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Smart Wake',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: const Text(
-                    'Wakes you gently in light sleep',
-                    style: TextStyle(
-                      color: SleepColors.textMuted,
-                      fontSize: 12,
-                    ),
-                  ),
-                  value: provider.settings.isSmartWakeEnabled,
-                  onChanged: (val) => provider.toggleSmartWake(val),
-                  activeTrackColor: Colors.tealAccent.withValues(alpha: 0.5),
-                  activeThumbColor: Colors.tealAccent,
-                ),
-                Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
-                SwitchListTile(
-                  title: Row(
-                    children: [
-                      const Icon(
-                        Icons.remove_red_eye_outlined,
-                        color: SleepColors.textSecondary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Lucid Dreaming Cues',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: const Text(
-                    'Audio triggers during natural REM cycles',
-                    style: TextStyle(
-                      color: SleepColors.textMuted,
-                      fontSize: 12,
-                    ),
-                  ),
-                  value: provider.settings.isLucidTriggerEnabled,
-                  onChanged: (val) => provider.toggleLucidTrigger(val),
-                  activeTrackColor: Colors.purpleAccent.withValues(alpha: 0.5),
-                  activeThumbColor: Colors.purpleAccent,
-                ),
               ],
             ),
           ),

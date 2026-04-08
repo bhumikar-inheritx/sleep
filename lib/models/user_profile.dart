@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'routine.dart';
 
 /// User profile & sleep preferences.
 class UserProfile {
@@ -16,7 +15,6 @@ class UserProfile {
   final DateTime? lastActiveDate;
   final List<String> completedChallenges;
   final List<String> recentlyPlayed;
-  final SleepRoutine? windDownRoutine;
   final bool onboardingComplete;
 
   const UserProfile({
@@ -33,7 +31,6 @@ class UserProfile {
     this.lastActiveDate,
     this.completedChallenges = const [],
     this.recentlyPlayed = const [],
-    this.windDownRoutine,
     this.onboardingComplete = false,
   });
 
@@ -58,9 +55,6 @@ class UserProfile {
           : null,
       completedChallenges: _parseStringList(json['completedChallenges']),
       recentlyPlayed: _parseStringList(json['recentlyPlayed']),
-      windDownRoutine: json['windDownRoutine'] != null
-          ? SleepRoutine.fromJson(json['windDownRoutine'] as Map<String, dynamic>)
-          : null,
       onboardingComplete: json['onboardingComplete'] as bool? ?? false,
     );
   }
@@ -81,7 +75,6 @@ class UserProfile {
       'lastActiveDate': lastActiveDate?.toIso8601String(),
       'completedChallenges': completedChallenges,
       'recentlyPlayed': recentlyPlayed,
-      'windDownRoutine': windDownRoutine?.toJson(),
       'onboardingComplete': onboardingComplete,
     };
   }
@@ -100,7 +93,6 @@ class UserProfile {
     DateTime? lastActiveDate,
     List<String>? completedChallenges,
     List<String>? recentlyPlayed,
-    SleepRoutine? windDownRoutine,
     bool? onboardingComplete,
   }) {
     return UserProfile(
@@ -117,7 +109,6 @@ class UserProfile {
       lastActiveDate: lastActiveDate ?? this.lastActiveDate,
       completedChallenges: completedChallenges ?? this.completedChallenges,
       recentlyPlayed: recentlyPlayed ?? this.recentlyPlayed,
-      windDownRoutine: windDownRoutine ?? this.windDownRoutine,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     );
   }

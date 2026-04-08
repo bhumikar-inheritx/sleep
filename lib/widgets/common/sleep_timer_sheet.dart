@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../config/colors.dart';
 import '../../providers/audio_player_provider.dart';
 import '../../providers/sound_mixer_provider.dart';
@@ -32,8 +33,10 @@ class _SleepTimerSheetState extends State<SleepTimerSheet> {
       {'label': '45 Minutes', 'duration': const Duration(minutes: 45)},
       {'label': '1 Hour', 'duration': const Duration(hours: 1)},
       {
-        'label': audioProvider.currentType == AudioContentType.story ? 'End of Chapter' : 'End of Track', 
-        'duration': audioProvider.duration - audioProvider.position
+        'label': audioProvider.currentType == AudioContentType.story
+            ? 'End of Chapter'
+            : 'End of Track',
+        'duration': audioProvider.duration - audioProvider.position,
       },
     ];
 
@@ -62,7 +65,8 @@ class _SleepTimerSheetState extends State<SleepTimerSheet> {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Consumer<AudioPlayerProvider>(
                     builder: (context, audio, _) {
-                      final remaining = audio.sleepTimerRemaining ?? Duration.zero;
+                      final remaining =
+                          audio.sleepTimerRemaining ?? Duration.zero;
                       final mins = remaining.inMinutes;
                       final secs = remaining.inSeconds % 60;
                       return Text(
@@ -78,8 +82,14 @@ class _SleepTimerSheetState extends State<SleepTimerSheet> {
                 ),
               if (audioProvider.isSleepTimerActive)
                 ListTile(
-                  title: const Text('Turn Off Timer', style: TextStyle(color: Colors.redAccent)),
-                  leading: const Icon(Icons.timer_off_outlined, color: Colors.redAccent),
+                  title: const Text(
+                    'Turn Off Timer',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                  leading: const Icon(
+                    Icons.timer_off_outlined,
+                    color: Colors.redAccent,
+                  ),
                   onTap: () {
                     audioProvider.cancelSleepTimer();
                     mixerProvider.cancelSleepTimer();
@@ -87,30 +97,47 @@ class _SleepTimerSheetState extends State<SleepTimerSheet> {
                   },
                 ),
               if (!_isCustom) ...[
-                ...options.map((opt) => ListTile(
-                  title: Text(opt['label'] as String, style: const TextStyle(color: Colors.white)),
-                  leading: const Icon(Icons.timer_outlined, color: SleepColors.textSecondary),
-                  onTap: () {
-                    final dur = opt['duration'] as Duration;
-                    if (dur.inSeconds > 0) {
-                      audioProvider.setSleepTimer(dur);
-                      mixerProvider.setSleepTimer(dur);
-                    }
-                    Navigator.pop(context);
-                  },
-                )),
+                ...options.map(
+                  (opt) => ListTile(
+                    title: Text(
+                      opt['label'] as String,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    leading: const Icon(
+                      Icons.timer_outlined,
+                      color: SleepColors.textSecondary,
+                    ),
+                    onTap: () {
+                      final dur = opt['duration'] as Duration;
+                      if (dur.inSeconds > 0) {
+                        audioProvider.setSleepTimer(dur);
+                        mixerProvider.setSleepTimer(dur);
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
                 ListTile(
-                  title: const Text('Custom...', style: TextStyle(color: Colors.white)),
-                  leading: const Icon(Icons.edit_note, color: SleepColors.textSecondary),
+                  title: const Text(
+                    'Custom...',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: const Icon(
+                    Icons.edit_note,
+                    color: SleepColors.textSecondary,
+                  ),
                   onTap: () {
                     setState(() {
                       _isCustom = true;
                     });
                   },
                 ),
-              ] else 
+              ] else
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -121,7 +148,9 @@ class _SleepTimerSheetState extends State<SleepTimerSheet> {
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Minutes',
-                            hintStyle: const TextStyle(color: SleepColors.textMuted),
+                            hintStyle: const TextStyle(
+                              color: SleepColors.textMuted,
+                            ),
                             filled: true,
                             fillColor: Colors.white.withValues(alpha: 0.05),
                             border: OutlineInputBorder(
@@ -148,7 +177,10 @@ class _SleepTimerSheetState extends State<SleepTimerSheet> {
                           }
                           Navigator.pop(context);
                         },
-                        child: const Text('Set', style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          'Set',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
@@ -166,7 +198,7 @@ void showSleepTimerSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: SleepColors.surfaceGlass,
+    backgroundColor: SleepColors.surfaceLight,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),

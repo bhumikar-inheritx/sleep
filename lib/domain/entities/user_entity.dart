@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../models/routine.dart';
 
 class UserEntity {
   final String? uid;
@@ -15,7 +14,6 @@ class UserEntity {
   final DateTime? lastActiveDate;
   final List<String> completedChallenges;
   final List<String> recentlyPlayed;
-  final SleepRoutine? windDownRoutine;
   final bool onboardingComplete;
 
   const UserEntity({
@@ -32,7 +30,6 @@ class UserEntity {
     this.lastActiveDate,
     this.completedChallenges = const [],
     this.recentlyPlayed = const [],
-    this.windDownRoutine,
     this.onboardingComplete = false,
   });
 
@@ -57,9 +54,6 @@ class UserEntity {
           : null,
       completedChallenges: _parseStringList(map['completedChallenges']),
       recentlyPlayed: _parseStringList(map['recentlyPlayed']),
-      windDownRoutine: map['windDownRoutine'] != null
-          ? SleepRoutine.fromJson(map['windDownRoutine'] as Map<String, dynamic>)
-          : null,
       onboardingComplete: map['onboardingComplete'] as bool? ?? false,
     );
   }
@@ -79,7 +73,6 @@ class UserEntity {
       'lastActiveDate': lastActiveDate?.toIso8601String(),
       'completedChallenges': completedChallenges,
       'recentlyPlayed': recentlyPlayed,
-      'windDownRoutine': windDownRoutine?.toJson(),
       'onboardingComplete': onboardingComplete,
     };
   }
@@ -98,7 +91,6 @@ class UserEntity {
     DateTime? lastActiveDate,
     List<String>? completedChallenges,
     List<String>? recentlyPlayed,
-    SleepRoutine? windDownRoutine,
     bool? onboardingComplete,
   }) {
     return UserEntity(
@@ -115,7 +107,6 @@ class UserEntity {
       lastActiveDate: lastActiveDate ?? this.lastActiveDate,
       completedChallenges: completedChallenges ?? this.completedChallenges,
       recentlyPlayed: recentlyPlayed ?? this.recentlyPlayed,
-      windDownRoutine: windDownRoutine ?? this.windDownRoutine,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     );
   }

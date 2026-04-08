@@ -39,11 +39,6 @@ class AlarmProvider extends ChangeNotifier {
           isWakeAlarmEnabled: json['isWakeAlarmEnabled'] as bool,
           isBedtimeReminderEnabled: json['isBedtimeReminderEnabled'] as bool,
           wakeSoundId: json['wakeSoundId'] as String,
-          isSmartWakeEnabled: json['isSmartWakeEnabled'] as bool? ?? false,
-          smartWakeWindow: json['smartWakeWindow'] as int? ?? 30,
-          isLucidTriggerEnabled: json['isLucidTriggerEnabled'] as bool? ?? false,
-          lucidTriggerInterval: json['lucidTriggerInterval'] as int? ?? 90,
-          lucidTriggerSoundId: json['lucidTriggerSoundId'] as String? ?? 'lucid_cue',
         );
       }
     } catch (e) {
@@ -66,11 +61,6 @@ class AlarmProvider extends ChangeNotifier {
         'isWakeAlarmEnabled': _settings.isWakeAlarmEnabled,
         'isBedtimeReminderEnabled': _settings.isBedtimeReminderEnabled,
         'wakeSoundId': _settings.wakeSoundId,
-        'isSmartWakeEnabled': _settings.isSmartWakeEnabled,
-        'smartWakeWindow': _settings.smartWakeWindow,
-        'isLucidTriggerEnabled': _settings.isLucidTriggerEnabled,
-        'lucidTriggerInterval': _settings.lucidTriggerInterval,
-        'lucidTriggerSoundId': _settings.lucidTriggerSoundId,
       };
       
       await StorageService.setString(_storageKey, jsonEncode(json));
@@ -149,11 +139,4 @@ class AlarmProvider extends ChangeNotifier {
     updateSettings(_settings.copyWith(repeatDays: days));
   }
 
-  void toggleSmartWake(bool isEnabled) {
-    updateSettings(_settings.copyWith(isSmartWakeEnabled: isEnabled));
-  }
-
-  void toggleLucidTrigger(bool isEnabled) {
-    updateSettings(_settings.copyWith(isLucidTriggerEnabled: isEnabled));
-  }
 }
