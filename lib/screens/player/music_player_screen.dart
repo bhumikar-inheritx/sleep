@@ -337,8 +337,10 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                         onPressed: () => _showTimerSheet(context, audioProvider),
                       ),
                     IconButton(
-                      icon: const Icon(Icons.skip_previous, color: Colors.white, size: 32),
-                      onPressed: () {}, // Previous track logic
+                      icon: const Icon(Icons.replay_10, color: Colors.white, size: 32),
+                      onPressed: () {
+                        audioProvider.seek(audioProvider.position - const Duration(seconds: 10));
+                      },
                     ),
                     
                     // Play/Pause Button
@@ -372,8 +374,10 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     ),
                     
                     IconButton(
-                      icon: const Icon(Icons.skip_next, color: Colors.white, size: 32),
-                      onPressed: () {}, // Next track logic
+                      icon: const Icon(Icons.forward_10, color: Colors.white, size: 32),
+                      onPressed: () {
+                        audioProvider.seek(audioProvider.position + const Duration(seconds: 10));
+                      },
                     ),
                     Consumer<AuthProvider>(
                       builder: (context, auth, _) {

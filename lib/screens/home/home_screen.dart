@@ -189,9 +189,10 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  locale.translate('good_evening'),
+                  '${locale.translate('good_evening')}${auth.userName != 'Dreamer' ? ', ${auth.userName}' : ''}',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

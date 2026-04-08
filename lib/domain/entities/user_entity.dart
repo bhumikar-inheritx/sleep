@@ -17,10 +17,6 @@ class UserEntity {
   final List<String> recentlyPlayed;
   final SleepRoutine? windDownRoutine;
   final bool onboardingComplete;
-  
-  // Audio settings
-  final Duration defaultSleepTimer;
-  final Duration fadeOutDuration;
 
   const UserEntity({
     this.uid,
@@ -38,8 +34,6 @@ class UserEntity {
     this.recentlyPlayed = const [],
     this.windDownRoutine,
     this.onboardingComplete = false,
-    this.defaultSleepTimer = const Duration(minutes: 30),
-    this.fadeOutDuration = const Duration(minutes: 5),
   });
 
   factory UserEntity.fromMap(Map<String, dynamic> map) {
@@ -67,8 +61,6 @@ class UserEntity {
           ? SleepRoutine.fromJson(map['windDownRoutine'] as Map<String, dynamic>)
           : null,
       onboardingComplete: map['onboardingComplete'] as bool? ?? false,
-      defaultSleepTimer: Duration(minutes: map['defaultSleepTimer'] as int? ?? 30),
-      fadeOutDuration: Duration(minutes: map['fadeOutDuration'] as int? ?? 5),
     );
   }
 
@@ -89,8 +81,6 @@ class UserEntity {
       'recentlyPlayed': recentlyPlayed,
       'windDownRoutine': windDownRoutine?.toJson(),
       'onboardingComplete': onboardingComplete,
-      'defaultSleepTimer': defaultSleepTimer.inMinutes,
-      'fadeOutDuration': fadeOutDuration.inMinutes,
     };
   }
 
@@ -110,8 +100,6 @@ class UserEntity {
     List<String>? recentlyPlayed,
     SleepRoutine? windDownRoutine,
     bool? onboardingComplete,
-    Duration? defaultSleepTimer,
-    Duration? fadeOutDuration,
   }) {
     return UserEntity(
       uid: uid ?? this.uid,
@@ -129,8 +117,6 @@ class UserEntity {
       recentlyPlayed: recentlyPlayed ?? this.recentlyPlayed,
       windDownRoutine: windDownRoutine ?? this.windDownRoutine,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
-      defaultSleepTimer: defaultSleepTimer ?? this.defaultSleepTimer,
-      fadeOutDuration: fadeOutDuration ?? this.fadeOutDuration,
     );
   }
 

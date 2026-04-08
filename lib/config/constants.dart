@@ -29,7 +29,6 @@ class AppConstants {
 
   // ─── Audio Defaults ───────────────────────────────
   static const int defaultTimerMinutes = 30;
-  static const int fadeOutDurationSeconds = 30;
   static const int maxMixerSounds = 5;
 
   // ─── Timer Options (in minutes) ───────────────────

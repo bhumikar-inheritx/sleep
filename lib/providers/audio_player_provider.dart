@@ -158,21 +158,36 @@ class AudioPlayerProvider extends ChangeNotifier {
 
   Future<void> stop() async {
     await _player.stop();
+    await _player.setVolume(1.0); // Reset volume
     _currentTitle = null;
     _position = Duration.zero;
+    cancelSleepTimer();
     notifyListeners();
   }
 
   // Sleep Timer Methods
   void setSleepTimer(Duration duration) {
     cancelSleepTimer();
-    if (duration == Duration.zero) return;
+    if (duration <= Duration.zero) return;
     
     _sleepTimerEndTime = DateTime.now().add(duration);
-    _sleepTimer = Timer(duration, () {
-      pause();
-      cancelSleepTimer();
+    
+    // Use a periodic timer for the final stop
+    _sleepTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) async {
+      final now = DateTime.now();
+      final remaining = _sleepTimerEndTime!.difference(now);
+
+      if (remaining <= Duration.zero) {
+        timer.cancel();
+        debugPrint('Sleep Timer Ended: Stopping playback');
+        await stop();
+        cancelSleepTimer();
+        return;
+      }
+
+      notifyListeners(); // Update remaining time display
     });
+
     notifyListeners();
   }
 
@@ -180,6 +195,7 @@ class AudioPlayerProvider extends ChangeNotifier {
     _sleepTimer?.cancel();
     _sleepTimer = null;
     _sleepTimerEndTime = null;
+    _player.setVolume(1.0); // Ensure volume is reset if timer is cancelled
     notifyListeners();
   }
 

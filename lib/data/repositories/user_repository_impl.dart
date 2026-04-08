@@ -34,6 +34,16 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
+  Stream<UserEntity?> getUserProfileStream(String uid) {
+    return remoteDataSource.watchData('users', uid).map((data) {
+      if (data != null) {
+        return UserEntity.fromMap(data);
+      }
+      return null;
+    });
+  }
+
+  @override
   Future<void> saveUserProfile(UserEntity profile) async {
     final data = profile.toMap();
     if (profile.uid != null) {

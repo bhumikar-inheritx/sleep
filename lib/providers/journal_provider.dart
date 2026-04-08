@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../domain/entities/journal_entry.dart';
 import '../domain/repositories/journal_repository.dart';
@@ -10,6 +11,7 @@ class JournalProvider extends ChangeNotifier {
   List<JournalEntry> _entries = [];
   bool _isLoading = false;
   bool _isDisposed = false;
+  StreamSubscription? _entriesSub;
 
   JournalProvider(this._repository, this.userId) {
     if (userId != null) {
@@ -25,20 +27,23 @@ class JournalProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    try {
-      _entries = await _repository.getEntries(userId!);
+    _entriesSub?.cancel();
+    _entriesSub = _repository.watchEntries(userId!).listen((entries) {
+      _entries = entries;
       _entries.sort((a, b) => b.date.compareTo(a.date));
-    } catch (e) {
-      debugPrint('Error loading journal entries: $e');
-    } finally {
       _isLoading = false;
-      if (!_isDisposed) notifyListeners();
-    }
+      notifyListeners();
+    }, onError: (e) {
+      debugPrint('Error watching journal entries: $e');
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   @override
   void dispose() {
     _isDisposed = true;
+    _entriesSub?.cancel();
     super.dispose();
   }
 

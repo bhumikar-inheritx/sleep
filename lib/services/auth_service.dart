@@ -117,6 +117,19 @@ class AuthService {
     await _auth.signOut();
   }
 
+  /// Update the current user's email address.
+  /// This will send a verification email to the new address.
+  Future<void> updateEmail(String newEmail) async {
+    try {
+      await _auth.currentUser?.verifyBeforeUpdateEmail(newEmail);
+    } on FirebaseAuthException {
+      rethrow;
+    } catch (e) {
+      debugPrint('Update Email Error: $e');
+      rethrow;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Error Helpers
   // ---------------------------------------------------------------------------

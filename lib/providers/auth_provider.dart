@@ -18,6 +18,7 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   StreamSubscription<User?>? _authSub;
+  StreamSubscription<UserEntity?>? _profileSub;
   UserEntity? _profile;
 
   bool get isLoading => _isLoading;
@@ -28,10 +29,10 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _authService.currentUser != null;
 
   /// Display name of the current user.
-  String? get userName => _authService.currentUser?.displayName ?? 'Dreamer';
+  String? get userName => _profile?.name ?? _authService.currentUser?.displayName ?? 'Dreamer';
 
   /// Email of the current user.
-  String? get userEmail => _authService.currentUser?.email;
+  String? get userEmail => _profile?.email ?? _authService.currentUser?.email;
 
   /// The raw Firebase [User] object.
   User? get currentUser => _authService.currentUser;
@@ -50,16 +51,21 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _loadRemoteProfile(String uid) async {
-    final remoteProfile = await _userRepository.getUserProfile(uid);
-    if (remoteProfile != null) {
-      _profile = remoteProfile;
-      _checkStreak();
-      _ensureDefaultRoutine();
-      notifyListeners();
-    } else {
-      _profile = UserEntity(uid: uid, name: userName ?? 'Dreamer', email: userEmail);
-      await updateProfile(_profile!);
-    }
+    _profileSub?.cancel();
+    _profileSub = _userRepository.getUserProfileStream(uid).listen((remoteProfile) async {
+      if (remoteProfile != null) {
+        _profile = remoteProfile;
+        _checkStreak();
+        _ensureDefaultRoutine();
+        notifyListeners();
+      } else {
+        // Only initialize if we don't have a profile yet
+        if (_profile == null) {
+          _profile = UserEntity(uid: uid, name: userName ?? 'Dreamer', email: userEmail);
+          await updateProfile(_profile!);
+        }
+      }
+    });
   }
 
   void _loadProfile() {
@@ -186,6 +192,7 @@ class AuthProvider with ChangeNotifier {
   @override
   void dispose() {
     _authSub?.cancel();
+    _profileSub?.cancel();
     super.dispose();
   }
 
@@ -262,6 +269,27 @@ class AuthProvider with ChangeNotifier {
       return false;
     } catch (e) {
       _error = 'Google Sign-In failed. Please try again.';
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  /// Update the current user's email address.
+  /// Sends a verification email to the new address.
+  Future<bool> updateEmail(String email) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      await _authService.updateEmail(email);
+      _setLoading(false);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _error = AuthService.getFirebaseErrorMessage(e.code);
+      _setLoading(false);
+      return false;
+    } catch (e) {
+      _error = 'Failed to update email. Please try again.';
       _setLoading(false);
       return false;
     }

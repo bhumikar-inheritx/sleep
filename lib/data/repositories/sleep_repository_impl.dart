@@ -30,6 +30,13 @@ class SleepRepositoryImpl implements SleepRepository {
   }
 
   @override
+  Stream<List<SleepLog>> watchLogs(String userId) {
+    return remoteDataSource.watchCollection('sleep_logs', userId: userId).map((list) {
+      return list.map((m) => SleepLog.fromJson(m)).toList();
+    });
+  }
+
+  @override
   Future<void> saveLog(SleepLog log) async {
     final data = log.toJson();
     await localDataSource.put(HiveDatasource.sleepBox, log.id, data);

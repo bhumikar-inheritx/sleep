@@ -34,20 +34,45 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _handleSave() {
+  void _handleSave() async {
     if (_formKey.currentState!.validate()) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      if (auth.profile != null) {
-        auth.updateProfile(auth.profile!.copyWith(name: _nameController.text));
+      
+      // Update Name
+      if (auth.profile != null && _nameController.text != auth.userName) {
+        await auth.updateProfile(auth.profile!.copyWith(name: _nameController.text));
+      }
+
+      // Handle Email Change separately if it was actually modified
+      if (_emailController.text != auth.userEmail) {
+        final success = await auth.updateEmail(_emailController.text);
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Verification email sent to new address'),
+              backgroundColor: SleepColors.primary,
+            ),
+          );
+        } else if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(auth.error ?? 'Failed to update email'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile updated successfully'),
+              backgroundColor: SleepColors.success,
+            ),
+          );
+        }
       }
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully'),
-          backgroundColor: SleepColors.success,
-        ),
-      );
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     }
   }
 
@@ -93,7 +118,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           controller: _emailController,
                           label: 'Email Address',
                           icon: Icons.email_outlined,
-                          enabled: false, // Usually email is read-only or changed differently
+                          enabled: true, // Allow editing but handle it via verification
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Email cannot be empty';
+                            if (!value.contains('@')) return 'Invalid email format';
+                            return null;
+                          },
+                          helperText: 'Changing email requires verification for security.',
                         ),
                         const SizedBox(height: 32),
                         SizedBox(
@@ -135,6 +166,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required String label,
     required IconData icon,
     bool enabled = true,
+    String? helperText,
     String? Function(String?)? validator,
   }) {
     return Column(
@@ -158,6 +190,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           validator: validator,
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: SleepColors.textMuted),
+            helperText: helperText,
+            helperStyle: const TextStyle(color: SleepColors.textMuted, fontSize: 11),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
             border: OutlineInputBorder(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../config/colors.dart';
 import '../../providers/premium_provider.dart';
 import '../../widgets/common/glass_card.dart';
@@ -9,6 +10,9 @@ class PaywallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final contentWidth = screenWidth > 450 ? 450.0 : screenWidth;
+
     return Scaffold(
       backgroundColor: SleepColors.background,
       body: Stack(
@@ -19,18 +23,29 @@ class PaywallScreen extends StatelessWidget {
               children: [
                 _buildHeader(context),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        _buildHero(),
-                        const SizedBox(height: 40),
-                        _buildFeatures(),
-                        const SizedBox(height: 40),
-                        _buildPricing(context),
-                        const SizedBox(height: 20),
-                      ],
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: contentWidth,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildHero(),
+                              const SizedBox(height: 48),
+                              _buildFeatures(),
+                              const SizedBox(height: 48),
+                              _buildPricing(context),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -44,31 +59,76 @@ class PaywallScreen extends StatelessWidget {
   }
 
   Widget _buildBackground() {
-    return Positioned.fill(
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1A1F3C),
-              SleepColors.background,
-            ],
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF161A30), SleepColors.background],
+              ),
+            ),
           ),
         ),
-      ),
+        Positioned(
+          top: -100,
+          right: -50,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.amber.withOpacity(0.08),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.amber.withOpacity(0.08),
+                  blurRadius: 100,
+                  spreadRadius: 50,
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: -50,
+          left: -100,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: SleepColors.primary.withOpacity(0.08),
+              boxShadow: [
+                BoxShadow(
+                  color: SleepColors.primary.withOpacity(0.08),
+                  blurRadius: 100,
+                  spreadRadius: 50,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.white70),
-            onPressed: () => Navigator.pop(context),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white70, size: 24),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
         ],
       ),
@@ -77,32 +137,43 @@ class PaywallScreen extends StatelessWidget {
 
   Widget _buildHero() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.amber.withValues(alpha: 0.1),
+            color: Colors.amber,
             shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.amber.withOpacity(0.15),
+                blurRadius: 30,
+                spreadRadius: 10,
+              ),
+            ],
           ),
-          child: const Icon(Icons.auto_awesome, color: Colors.amber, size: 64),
+          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 56),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 28),
         const Text(
           'Unlock DreamDrift Premium',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white,
             fontSize: 28,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Join 50,000+ people sleeping better every night.',
+        Text(
+          'Join 50,000+ people sleeping\nbetter every night.',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: SleepColors.textSecondary,
+            color: Colors.white70,
             fontSize: 16,
+            height: 1.4,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -111,84 +182,200 @@ class PaywallScreen extends StatelessWidget {
 
   Widget _buildFeatures() {
     final features = [
-      {'icon': Icons.music_note, 'title': '100+ Premium Soundscapes', 'desc': 'Exclusive nature sounds and melodies.'},
-      {'icon': Icons.self_improvement, 'title': 'All Guided Meditations', 'desc': 'Full access to our expert-led sessions.'},
-      {'icon': Icons.insights, 'title': 'Advanced Sleep Analytics', 'desc': 'Deep dive into your sleep patterns.'},
-      {'icon': Icons.alarm, 'title': 'Smart Alarm Windows', 'desc': 'Wake up at the optimal time every morning.'},
+      {
+        'icon': Icons.music_note_rounded,
+        'title': '100+ Premium Soundscapes',
+        'desc': 'Exclusive nature sounds & melodies',
+      },
+      {
+        'icon': Icons.self_improvement_rounded,
+        'title': 'All Guided Meditations',
+        'desc': 'Full access to expert-led sessions',
+      },
+      {
+        'icon': Icons.insights_rounded,
+        'title': 'Advanced Sleep Analytics',
+        'desc': 'Deep dive into sleep patterns',
+      },
+      {
+        'icon': Icons.alarm_rounded,
+        'title': 'Smart Alarm Windows',
+        'desc': 'Wake up at the optimal time',
+      },
     ];
 
     return Column(
-      children: features.map((f) => Padding(
-        padding: const EdgeInsets.only(bottom: 24),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: SleepColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(f['icon'] as IconData, color: SleepColors.primaryLight, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: features
+          .map(
+            (f) => Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: Row(
                 children: [
-                  Text(f['title'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 2),
-                  Text(f['desc'] as String, style: const TextStyle(color: SleepColors.textMuted, fontSize: 13)),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          SleepColors.primary.withOpacity(0.25),
+                          SleepColors.primary.withOpacity(0.05),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: SleepColors.primary.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Icon(
+                      f['icon'] as IconData,
+                      color: SleepColors.primaryLight,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          f['title'] as String,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          f['desc'] as String,
+                          style: const TextStyle(
+                            color: SleepColors.textMuted,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      )).toList(),
+          )
+          .toList(),
     );
   }
 
   Widget _buildPricing(BuildContext context) {
     return GlassCard(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Annual Plan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-                  Text('7-day free trial', style: TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Annual Plan',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                    ),
+                    child: const Text(
+                      '7-DAY FREE TRIAL',
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('\$49.99/year', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-                  Text('\$4.16/month', style: TextStyle(color: SleepColors.textMuted, fontSize: 12)),
+                  Text(
+                    '\$49.99/yr',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Just \$4.16/mo',
+                    style: TextStyle(
+                      color: SleepColors.textMuted,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () async {
-              await context.read<PremiumProvider>().upgrade();
-              if (context.mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Welcome to Premium!'), backgroundColor: SleepColors.primary),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: SleepColors.primary,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: SleepColors.primary.withOpacity(0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: const Text('Start Free Trial', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: ElevatedButton(
+              onPressed: () async {
+                await context.read<PremiumProvider>().upgrade();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Welcome to Premium!'),
+                      backgroundColor: SleepColors.primary,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: SleepColors.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Start Free Trial',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+            ),
           ),
         ],
       ),
@@ -196,12 +383,17 @@ class PaywallScreen extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Text(
         'Restore Purchase  •  Terms of Service  •  Privacy Policy',
         textAlign: TextAlign.center,
-        style: TextStyle(color: SleepColors.textMuted, fontSize: 12),
+        style: TextStyle(
+          color: SleepColors.textMuted,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

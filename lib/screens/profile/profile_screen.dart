@@ -13,7 +13,6 @@ import '../../providers/sleep_tracker_provider.dart';
 import '../../providers/journal_provider.dart';
 
 import 'edit_profile_screen.dart';
-import 'notification_settings_screen.dart';
 import 'profile_bottom_sheets.dart';
 import '../../services/health_service.dart';
 import '../../providers/premium_provider.dart';
@@ -106,32 +105,6 @@ class ProfileScreen extends StatelessWidget {
                 context,
                 title: 'Audio Settings',
                 items: [
-                  _SettingsItem(
-                    icon: Icons.timer_outlined,
-                    title: 'Default Sleep Timer',
-                    trailing: Consumer<AuthProvider>(
-                      builder: (context, auth, _) => Text(
-                        '${auth.profile?.defaultSleepTimer.inMinutes ?? 30} min',
-                        style: const TextStyle(color: SleepColors.textMuted),
-                      ),
-                    ),
-                    onTap: () {
-                      ProfileBottomSheets.showTimerSelectionSheet(context);
-                    },
-                  ),
-                  _SettingsItem(
-                    icon: Icons.volume_down_outlined,
-                    title: 'Fade Out Duration',
-                    trailing: Consumer<AuthProvider>(
-                      builder: (context, auth, _) => Text(
-                        '${auth.profile?.fadeOutDuration.inMinutes ?? 5} min',
-                        style: const TextStyle(color: SleepColors.textMuted),
-                      ),
-                    ),
-                    onTap: () {
-                      ProfileBottomSheets.showFadeOutSheet(context);
-                    },
-                  ),
                   _SettingsItem(
                     icon: Icons.language_outlined,
                     title: 'Language',

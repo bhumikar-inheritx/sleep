@@ -31,6 +31,13 @@ class JournalRepositoryImpl implements JournalRepository {
   }
 
   @override
+  Stream<List<JournalEntry>> watchEntries(String userId) {
+    return remoteDataSource.watchCollection('journals', userId: userId).map((list) {
+      return list.map((m) => JournalEntry.fromMap(m)).toList();
+    });
+  }
+
+  @override
   Future<void> saveEntry(JournalEntry entry) async {
     final data = entry.toMap();
     await localDataSource.put(HiveDatasource.journalBox, entry.id, data);

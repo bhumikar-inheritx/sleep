@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,7 @@ class SleepTrackerProvider extends ChangeNotifier {
   final String? userId;
   List<SleepLog> _logs = [];
   bool _isDisposed = false;
+  StreamSubscription? _logsSub;
 
   List<SleepLog> get logs => List.unmodifiable(_logs);
 
@@ -27,20 +29,23 @@ class SleepTrackerProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    try {
-      _logs = await _repository.getLogs(userId!);
+    _logsSub?.cancel();
+    _logsSub = _repository.watchLogs(userId!).listen((logs) {
+      _logs = logs;
       _logs.sort((a, b) => b.bedtime.compareTo(a.bedtime));
-    } catch (e) {
-      debugPrint('Error loading sleep logs: $e');
-    } finally {
       _isLoading = false;
-      if (!_isDisposed) notifyListeners();
-    }
+      notifyListeners();
+    }, onError: (e) {
+      debugPrint('Error watching sleep logs: $e');
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   @override
   void dispose() {
     _isDisposed = true;
+    _logsSub?.cancel();
     super.dispose();
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/soundscape.dart';
@@ -10,7 +11,12 @@ class SoundMixerProvider extends ChangeNotifier {
   // Track the current volume of each active sound (0.0 to 1.0)
   final Map<String, double> _volumes = {};
 
+  // Sleep Timer
+  Timer? _sleepTimer;
+  DateTime? _sleepTimerEndTime;
+
   bool get isPlaying => _players.values.any((p) => p.playing);
+  bool get isSleepTimerActive => _sleepTimer != null;
   
   bool isSoundActive(String soundId) => _players.containsKey(soundId);
   double getVolume(String soundId) => _volumes[soundId] ?? 0.0;
@@ -67,8 +73,42 @@ class SoundMixerProvider extends ChangeNotifier {
   /// Stops and removes all sounds from the mix.
   Future<void> clearMix() async {
     await _stopAll();
+    cancelSleepTimer();
     notifyListeners();
   }
+
+  // Sleep Timer Methods
+  void setSleepTimer(Duration duration) {
+    cancelSleepTimer();
+    if (duration <= Duration.zero) return;
+
+    _sleepTimerEndTime = DateTime.now().add(duration);
+
+    _sleepTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) async {
+      final now = DateTime.now();
+      final remaining = _sleepTimerEndTime!.difference(now);
+
+      if (remaining <= Duration.zero) {
+        timer.cancel();
+        debugPrint('Mixer Sleep Timer Ended: Clearing mix');
+        await clearMix();
+        cancelSleepTimer();
+        return;
+      }
+
+      notifyListeners();
+    });
+
+    notifyListeners();
+  }
+
+  void cancelSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+    _sleepTimerEndTime = null;
+    notifyListeners();
+  }
+
 
   // --- Private Helpers ---
 

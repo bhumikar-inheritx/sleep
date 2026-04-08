@@ -7,10 +7,10 @@ import '../../models/sleep_story.dart';
 import '../../models/sleep_track.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/content_provider.dart';
-import '../../screens/player/music_player_screen.dart';
-import '../../screens/player/story_player_screen.dart';
 import '../../widgets/common/glass_card.dart';
 import '../../widgets/common/sleep_app_bar.dart';
+import '../player/music_player_screen.dart';
+import '../player/story_player_screen.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -406,9 +406,7 @@ class _ContentCard extends StatelessWidget {
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
                           size: 16,
-                          color: isFavorite
-                              ? Colors.redAccent
-                              : Colors.white,
+                          color: isFavorite ? Colors.redAccent : Colors.white,
                         ),
                       ),
                     );
